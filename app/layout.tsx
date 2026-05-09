@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "花卷 Agent (Roll) | 轻量级 Agent 编排系统",
-  description: "指挥官 + MCP 协议 + 按需加载的 Roll Agent 官网与 Subagent 应用商店。",
+  title: "Roll | 常用聊天里的 AI 招聘助手",
+  description: "Roll 帮招聘团队在飞书、微信、钉钉里处理候选人消息、筛选合适人选、生成回复并同步团队进展。",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

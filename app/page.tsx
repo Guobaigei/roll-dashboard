@@ -1,211 +1,208 @@
 import { AgentStore } from "@/components/AgentStore";
 import { agents } from "@/data/agents";
 
-const heroImage = "/hero.jpg";
-
-const quickStart = [
-  "git clone https://github.com/steveoon/roll-agent.git",
-  "cd roll-agent && pnpm install",
-  "pnpm dev -- config init",
-  'pnpm dev -- ask "帮我查看boss直聘上有多少未读消息"',
-];
-
-const layers = [
+const painPoints = [
   {
-    label: "描述层",
-    title: "Agent Skills",
-    body: "SKILL.md 告诉指挥官“我是谁、我能做什么”。",
+    label: "不用换入口",
+    title: "不管你是用微信、飞书... 智能招聘都能跟着走。",
+    body: "Roll 把招聘助手接到使用者原本顺手的聊天软件里，不需要为了用 AI 招聘再切到另一套系统。",
   },
   {
-    label: "运行时层",
-    title: "MCP",
-    body: "实际调用子 Agent 的通信协议，兼容 stdio 本地子进程和 HTTP 远程服务。",
+    label: "消息堆积",
+    title: "候选人问得快，人工回复跟不上。",
+    body: "排班、薪资、门店位置、岗位要求反复被问，回复慢了就容易错过合适的人。",
   },
   {
-    label: "LLM 解耦",
-    title: "Sampling",
-    body: "子 Agent 通过 MCP Sampling 回调指挥官的 LLM Engine，不需要自己管理模型密钥。",
+    label: "重复操作",
+    title: "筛选、打招呼、回复问题，都是高频但容易被延误的动作。",
+    body: "看消息、点开资料、判断是否合适、写回复、同步团队，每一步都不难，但加起来很耗人。",
+  },
+  {
+    label: "经验难复制",
+    title: "优秀招聘顾问的判断，很难稳定复制给每个人。",
+    body: "新人不知道怎么回，老手没有时间逐条看，团队很难把好的沟通经验变成统一动作。",
   },
 ];
 
-const recentUpdates = [
-  "roll ask 两阶段调用：先路由到 agent + tool，再按目标 tool 的 inputSchema 提取参数。",
-  "tool-runtime 统一参数提取、preflight 校验、错误分类和用户提示。",
-  "roll run 支持 --input-json / --input-file，适合复杂对象和批量 payload。",
-  "roll chat 当前是 experimental 骨架，不做多步编排。",
-  "smart-reply-agent 从 Duliday pull 品牌数据，模型升级为 meta + brands[] + stores[] + positions[]。",
+const workflowSteps = [
+  {
+    step: "01",
+    title: "你在聊天里交代一句",
+    body: "在飞书、微信、钉钉里说清楚要做什么，不需要打开新的复杂后台。",
+  },
+  {
+    step: "02",
+    title: "Roll 听懂招聘目标",
+    body: "它判断你是要看消息、筛候选人、写回复，还是把进展同步给团队。",
+  },
+  {
+    step: "03",
+    title: "AI 助手分头干活",
+    body: "有的去招聘网站看消息，有的结合岗位写回复，有的补齐资料，有的同步团队。",
+  },
+  {
+    step: "04",
+    title: "报名结果回到你面前",
+    body: "你看到的是已帮你报名了多少人、报名人的姓名和关键信息，而不是一堆过程记录。",
+  },
 ];
 
-const registryCommands = [
-  {
-    label: "本地目录 / Git 仓库",
-    title: "开发态或源码接入",
-    body: "你已经拿到 Agent 源码目录，或对方给的是 Git URL。Roll 会解析 SKILL.md，并在本地注册这个 Agent。",
-    command: "roll agent add <path|url>",
-  },
-  {
-    label: "npm 包",
-    title: "普通用户优先选这个",
-    body: "Agent 已经发布成可安装包时使用。官网商店的一键接入命令会优先用这种方式。",
-    command: "roll agent install <package>",
-  },
-  {
-    label: "远程 MCP 服务",
-    title: "接入已经部署好的服务",
-    body: "Agent 不在本机运行，而是由外部服务提供 streamable-http MCP endpoint，需要显式填写名称和描述。",
-    command: 'roll agent add --remote https://example.com/mcp --name remote-agent --description "远程 Agent"',
-  },
+const caseSteps = [
+  "你在常用聊天软件里说：帮我处理今天的候选人消息。",
+  "Roll 去招聘网站查看新消息，找出更值得优先跟进的人。",
+  "它结合岗位信息和候选人问题，生成自然、统一、可直接使用的回复。",
+  "进一步跟进候选人，直到报名面试，将结果汇报给你。",
+];
+
+const trustItems = [
+  "可接入飞书、微信、钉钉等聊天软件",
+  "可连接 BOSS、鱼泡等招聘网站",
+  "可按需要增加 AI 助手",
 ];
 
 export default function Home() {
   return (
     <main>
-      <nav className="topbar" aria-label="Main navigation">
-        <a className="brand" href="#top" aria-label="Roll Agent home">
-          花卷 Roll
+      <nav className="topbar" aria-label="主导航">
+        <a className="brand" href="#top" aria-label="Roll 首页">
+          <span className="brand-mark">R</span>
+          <span>Roll</span>
         </a>
         <div className="nav-links">
-          <a href="#architecture">架构</a>
-          <a href="#quickstart">开始</a>
-          <a href="#store">商店</a>
+          <a href="#how">工作方式</a>
+          <a href="#team">AI 助手</a>
+          <a href="#case">落地场景</a>
         </div>
       </nav>
 
       <section className="hero" id="top" aria-labelledby="hero-title">
-        <img src={heroImage} alt="Developer working with code on an iMac" />
-        <div className="hero-shade" />
+        <div className="hero-interface" aria-hidden="true">
+          <div className="command-shell">
+            <div className="shell-top">
+              <span>Roll 招聘助手</span>
+              <strong>执行中</strong>
+            </div>
+            <div className="live-route">
+              <span>正在处理</span>
+              <p>聊天指令 / 招聘消息 / 候选人筛选 / 团队同步</p>
+            </div>
+            <div className="chat-card user-card">
+              <span>你</span>
+              <p>
+                帮我使用 roll 回复下今天 BOSS / 鱼泡 的候选人消息，并把进展同步到我。
+                <i />
+              </p>
+            </div>
+            <div className="roll-brain">
+              <div>
+                <span>Roll 正在安排工作</span>
+                <strong>已拆成 4 件事，逐项推进</strong>
+              </div>
+              <div className="brain-stream">
+                <span>打开浏览器</span>
+                <span>看未读消息</span>
+                <span>生成智能回复</span>
+                <span>汇报进展</span>
+              </div>
+              <div className="pulse-ring" />
+            </div>
+            <div className="dispatch-grid">
+              <div className="task-card active">
+                <span>01</span>
+                <strong>操控浏览器</strong>
+                <p>打开 BOSS / 鱼泡 招聘网站</p>
+                <div className="task-progress">
+                  <i />
+                </div>
+              </div>
+              <div className="task-card">
+                <span>02</span>
+                <strong>看未读消息</strong>
+                <p>打开候选人列表查看未读消息</p>
+                <div className="task-progress">
+                  <i />
+                </div>
+              </div>
+              <div className="task-card">
+                <span>03</span>
+                <strong>生成智能回复</strong>
+                <p>根据未读消息依据岗位信息生成智能回复</p>
+                <div className="task-progress">
+                  <i />
+                </div>
+              </div>
+              <div className="task-card done">
+                <span>04</span>
+                <strong>汇报进展</strong>
+                <p>向我汇报招聘进度</p>
+                <div className="task-progress">
+                  <i />
+                </div>
+              </div>
+            </div>
+            <div className="result-card">
+              <span>结果回传</span>
+              <p>已沟通 12 位候选人，5 位候选人已报名面试。</p>
+              <div className="result-stream">
+                <span>候选人 A 已报名面试</span>
+                <span>候选人 B 已沟通</span>
+                <span>候选人 C 有新意向岗位</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="hero-copy">
-          <p className="eyebrow">Roll Agent</p>
+          <p className="eyebrow">AI 招聘助手</p>
           <h1 id="hero-title">
-            <span>指挥官调度，</span>
-            <span>MCP 接入。</span>
+            <span>体验 AI 带来的</span>
+            <span>智能招聘</span>
+            <span>更快一步。</span>
           </h1>
-          <p>
-            Roll 是轻量级 Agent 编排系统。roll-core 负责 LLM 基座、Agent 发现/调度和 CLI
-            交互，子 Agent 通过 MCP 协议接入。
+          <p className="hero-slogan">超级大脑统筹，专业助手执行，给你一个灵工招聘的行家。</p>
+          <p className="hero-body">
+            在飞书、微信、钉钉里说一句，Roll 就能帮你看消息、筛候选人、写回复、同步团队。
+            不用换系统，也不用反复打开招聘网站。
           </p>
           <div className="hero-actions">
-            <a href="#store">浏览 Subagent</a>
-            <a href="#quickstart">快速开始</a>
+            <a className="primary-action" href="#how">
+              看看怎么工作
+            </a>
+            <a className="secondary-action" href="#team">
+              它能帮我做什么
+            </a>
           </div>
         </div>
-        <div className="hero-console" aria-label="Roll ask command">
-          <span>roll ask</span>
-          <code>"帮我查看boss直聘上有多少未读消息"</code>
-        </div>
       </section>
 
-      <section className="product-strip" aria-label="Roll highlights">
-        <div>
-          <span>环境要求</span>
-          <strong>Node.js 22.6+</strong>
-        </div>
-        <div>
-          <span>包管理</span>
-          <strong>pnpm 10+</strong>
-        </div>
-        <div>
-          <span>路由</span>
-          <strong>声明式 / LLM 智能</strong>
-        </div>
-        <div>
-          <span>Provider</span>
-          <strong>Anthropic / OpenAI / DeepSeek / Qwen</strong>
-        </div>
-      </section>
-
-      <section className="intro-section">
-        <div className="section-heading centered">
-          <p className="eyebrow">Core Idea</p>
-          <h2>把“描述”和“运行时”拆开。</h2>
-          <p>
-            SKILL.md 负责让 Roll 识别 Agent 能力，MCP 负责真正调用工具。
-            子 Agent 可以是任意语言实现的本地子进程，也可以是远程服务。
-          </p>
-        </div>
-      </section>
-
-      <section className="architecture" id="architecture" aria-labelledby="architecture-title">
+      <section className="pain-section" aria-labelledby="pain-title">
         <div className="section-heading">
-          <p className="eyebrow">Architecture</p>
-          <h2 id="architecture-title">roll-core 是指挥官，Agent 是可替换的执行单元。</h2>
+          <p className="eyebrow">为什么需要 Roll</p>
+          <h2 id="pain-title">不是再多一个招聘后台，而是把重复工作交给 AI。</h2>
+          <p>Roll 把常用聊天软件、招聘网站和业务资料连起来，把人的经历从琐碎中解放出来。</p>
         </div>
-
-        <div className="system-map" aria-label="Roll architecture map">
-          <div className="system-node user-node">用户 CLI</div>
-          <div className="system-node core-node">
-            <strong>roll-core</strong>
-            <span>Agent Registry</span>
-            <span>Router</span>
-            <span>Runtime Manifest</span>
-            <span>MCP Client Manager</span>
-            <span>LLM Engine</span>
-          </div>
-          <div className="transport-row">
-            <div className="system-node">stdio 本地子进程</div>
-            <div className="system-node">HTTP 远程服务</div>
-          </div>
-        </div>
-
-        <div className="architecture-grid">
-          {layers.map((item) => (
-            <article key={item.title}>
-              <small>{item.label}</small>
-              <span>{item.title}</span>
+        <div className="pain-grid">
+          {painPoints.map((item) => (
+            <article key={item.label}>
+              <span>{item.label}</span>
+              <h3>{item.title}</h3>
               <p>{item.body}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="updates-section" aria-labelledby="updates-title">
-        <div className="section-heading">
-          <p className="eyebrow">Recent Updates</p>
-          <h2 id="updates-title">更可靠的路由，更明确的输入。</h2>
-        </div>
-        <div className="update-list">
-          {recentUpdates.map((item) => (
-            <p key={item}>{item}</p>
-          ))}
-        </div>
-      </section>
-
-      <section className="quickstart" id="quickstart" aria-labelledby="quickstart-title">
-        <div className="section-heading">
-          <p className="eyebrow">Quick Start</p>
-          <h2 id="quickstart-title">从源码安装，到自然语言调用。</h2>
-          <p>
-            README 中的开发模式使用 Node.js Type Stripping 直接运行 TypeScript。
-            上线后的 Agent 接入命令后续会补到商店数据里。
-          </p>
-        </div>
-        <div className="terminal" aria-label="Quick start terminal">
-          <div className="terminal-bar">
-            <span />
-            <span />
-            <span />
-          </div>
-          {quickStart.map((line) => (
-            <code key={line}>
-              <span>$</span> {line}
-            </code>
-          ))}
-        </div>
-      </section>
-
-      <section className="command-section" aria-labelledby="commands-title">
+      <section className="workflow-section" id="how" aria-labelledby="workflow-title">
         <div className="section-heading centered">
-          <p className="eyebrow">Register</p>
-          <h2 id="commands-title">本地目录、npm 包、远程 MCP 服务，走不同入口。</h2>
-          <p>先看 Agent 的交付形态，再复制对应命令。</p>
+          <p className="eyebrow">它怎么帮你</p>
+          <h2 id="workflow-title">从一句话到招聘闭环，Roll 负责把中间的活做完。</h2>
         </div>
-        <div className="command-grid">
-          {registryCommands.map((item) => (
-            <article className="command-card" key={item.command}>
-              <span>{item.label}</span>
+        <div className="workflow-rail">
+          {workflowSteps.map((item) => (
+            <article key={item.step}>
+              <span>{item.step}</span>
               <h3>{item.title}</h3>
               <p>{item.body}</p>
-              <code>{item.command}</code>
             </article>
           ))}
         </div>
@@ -213,11 +210,55 @@ export default function Home() {
 
       <AgentStore agents={agents} />
 
+      <section className="case-section" id="case" aria-labelledby="case-title">
+        <div className="section-heading">
+          <p className="eyebrow">落地场景</p>
+          <h2 id="case-title">先从灵工招聘开始，把候选人跟进交给 Roll。</h2>
+          <p>
+            招聘人员继续在熟悉的聊天软件里发消息。Roll 会去招聘网站看候选人消息、
+            生成回复建议、协助打招呼，并把进展同步回团队。
+          </p>
+        </div>
+        <div className="case-layout">
+          <div className="case-phone" aria-hidden="true">
+            <div className="phone-header">
+              <span>AI 招聘助手</span>
+              <strong>12 条消息</strong>
+            </div>
+            <div className="message-list">
+              <p>候选人 A：今天可以面试吗？</p>
+              <p>候选人 B：门店离我多远？</p>
+              <p>候选人 C：兼职薪资怎么算？</p>
+            </div>
+            <div className="phone-input">让 Roll 帮我处理下今天的候选人消息</div>
+          </div>
+          <ol className="case-steps">
+            {caseSteps.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className="trust-section" aria-label="可信底座">
+        <div className="trust-copy">
+          <p className="eyebrow">能力支持</p>
+          <h2>对使用者很简单，对企业流程足够开放。</h2>
+          <p>让团队继续用熟悉的聊天软件，把候选人沟通、筛选和同步交给 Roll 持续推进。</p>
+          <a className="trust-action" href="#team">
+            查看 AI 助手
+          </a>
+        </div>
+        <div className="trust-tags">
+          {trustItems.map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      </section>
+
       <footer className="footer">
-        <span>Roll Agent</span>
-        <a href="https://github.com/steveoon/roll-agent" rel="noreferrer" target="_blank">
-          GitHub
-        </a>
+        <span>Roll</span>
+        <p>常用聊天里的 AI 招聘助手</p>
       </footer>
     </main>
   );
