@@ -19,6 +19,17 @@
   --purple: #7c3aed;
   --shadow: 0 24px 80px rgba(92, 55, 20, 0.16);
   --ring: 0 0 0 1px rgba(32, 21, 21, 0.1);
+  --page-inline: clamp(44px, 5vw, 84px);
+  --page-max: 1560px;
+  --hero-max: 1560px;
+  --hero-gap: 72px;
+  --hero-copy-width: 640px;
+  --hero-shell-width: 740px;
+  --hero-shell-min-height: 650px;
+  --hero-title-size: 68px;
+  --section-title-size: 56px;
+  --body-size: 19px;
+  --section-y: 108px;
 }
 
 * {
@@ -29,10 +40,17 @@ html {
   scroll-behavior: smooth;
 }
 
+#why,
 #how,
 #team,
 #case {
   scroll-margin-top: 86px;
+}
+
+.section-anchor {
+  display: block;
+  height: 0;
+  pointer-events: none;
 }
 
 body {
@@ -76,7 +94,7 @@ p {
   height: 64px;
   justify-content: space-between;
   left: 0;
-  padding: 0 5vw;
+  padding: 0 var(--page-inline);
   position: fixed;
   right: 0;
   top: 0;
@@ -122,11 +140,15 @@ p {
 
 .hero {
   align-items: center;
+  column-gap: var(--hero-gap);
   display: grid;
+  grid-template-columns: minmax(0, var(--hero-copy-width)) minmax(0, var(--hero-shell-width));
+  justify-content: center;
   min-height: 100vh;
   overflow: hidden;
-  padding: 112px 5vw 72px;
+  padding: 112px var(--page-inline) 72px;
   position: relative;
+  row-gap: var(--hero-gap);
 }
 
 .hero::before {
@@ -151,11 +173,13 @@ p {
 }
 
 .hero-interface {
-  inset: 86px 5vw 44px auto;
-  max-width: 720px;
-  min-width: 520px;
-  position: absolute;
-  width: 52vw;
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  max-width: var(--hero-shell-width);
+  min-width: 0;
+  position: relative;
+  width: 100%;
   z-index: 1;
 }
 
@@ -172,8 +196,7 @@ p {
     inset 0 1px 0 rgba(255, 255, 255, 0.72);
   display: grid;
   gap: 16px;
-  height: 100%;
-  min-height: 650px;
+  min-height: var(--hero-shell-min-height);
   overflow: hidden;
   padding: 18px;
   position: relative;
@@ -552,7 +575,9 @@ p {
 }
 
 .hero-copy {
-  max-width: 600px;
+  grid-column: 1;
+  grid-row: 1;
+  max-width: var(--hero-copy-width);
   position: relative;
   z-index: 2;
 }
@@ -577,7 +602,7 @@ p {
 }
 
 h1 {
-  font-size: clamp(48px, 5.2vw, 74px);
+  font-size: var(--hero-title-size);
   font-weight: 820;
   letter-spacing: 0;
   line-height: 1.06;
@@ -604,7 +629,7 @@ h1 span:last-child {
 
 .hero-body {
   color: var(--ink-muted);
-  font-size: 19px;
+  font-size: var(--body-size);
   line-height: 1.78;
   margin-bottom: 36px;
   max-width: 560px;
@@ -641,17 +666,12 @@ h1 span:last-child {
 }
 
 .section-heading {
-  max-width: 850px;
-}
-
-.section-heading.centered {
-  margin: 0 auto;
-  text-align: center;
+  max-width: min(100%, var(--page-max));
 }
 
 .section-heading h2,
 .trust-section h2 {
-  font-size: clamp(34px, 5vw, 62px);
+  font-size: var(--section-title-size);
   font-weight: 850;
   letter-spacing: 0;
   line-height: 1.04;
@@ -660,8 +680,9 @@ h1 span:last-child {
 
 .section-heading p:not(.eyebrow) {
   color: var(--ink-muted);
-  font-size: 20px;
+  font-size: var(--body-size);
   line-height: 1.7;
+  max-width: 850px;
 }
 
 .pain-section,
@@ -669,7 +690,7 @@ h1 span:last-child {
 .team-section,
 .case-section,
 .trust-section {
-  padding: 108px 5vw;
+  padding: var(--section-y) max(var(--page-inline), calc((100vw - var(--page-max)) / 2));
 }
 
 .pain-grid {
@@ -735,8 +756,8 @@ h1 span:last-child {
   display: grid;
   gap: 0;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin: 54px auto 0;
-  max-width: 1220px;
+  margin: 54px 0 0;
+  width: 100%;
   position: relative;
 }
 
@@ -1195,7 +1216,7 @@ h1 span:last-child {
   display: flex;
   justify-content: space-between;
   min-height: 92px;
-  padding: 0 5vw;
+  padding: 0 var(--page-inline);
 }
 
 .footer span {
@@ -1397,38 +1418,214 @@ a:focus-visible {
   }
 }
 
-@media (max-width: 1180px) {
-  .hero {
-    align-items: end;
-    min-height: auto;
-    padding-bottom: 620px;
-  }
-
-  .hero-interface {
-    bottom: 42px;
-    left: 5vw;
-    max-width: none;
-    min-width: 0;
-    right: 5vw;
-    top: auto;
-    width: auto;
+@media (min-width: 1800px) {
+  :root {
+    --page-inline: clamp(84px, 5vw, 128px);
+    --page-max: 1840px;
+    --hero-max: 1840px;
+    --hero-gap: 112px;
+    --hero-copy-width: 700px;
+    --hero-shell-width: 920px;
+    --hero-shell-min-height: 760px;
+    --hero-title-size: 78px;
+    --section-title-size: 64px;
+    --body-size: 20px;
+    --section-y: 124px;
   }
 
   .command-shell {
-    min-height: 520px;
+    gap: 18px;
+    padding: 22px;
   }
 
-  .pain-grid,
-  .workflow-rail,
-  .team-layout,
-  .case-layout,
-  .trust-section {
-    grid-template-columns: 1fr;
+  .chat-card p,
+  .result-card p {
+    font-size: 20px;
+  }
+
+  .roll-brain strong {
+    font-size: 31px;
+  }
+
+  .task-card {
+    min-height: 144px;
+    padding: 18px;
+  }
+
+  .task-card strong {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 1399px) {
+  :root {
+    --page-inline: clamp(38px, 5vw, 64px);
+    --hero-gap: 44px;
+    --hero-copy-width: 460px;
+    --hero-shell-width: 610px;
+    --hero-shell-min-height: 590px;
+    --hero-title-size: 54px;
+    --section-title-size: 44px;
+    --body-size: 18px;
+    --section-y: 92px;
+  }
+
+  .hero {
+    align-items: start;
+    grid-template-columns: minmax(0, var(--hero-copy-width)) minmax(0, var(--hero-shell-width));
+  }
+
+  .hero-slogan {
+    font-size: 20px;
+  }
+
+  .hero-body {
+    line-height: 1.68;
+  }
+
+  .command-shell {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .chat-card,
+  .result-card {
+    padding: 14px;
+  }
+
+  .chat-card p,
+  .result-card p {
+    font-size: 15px;
+  }
+
+  .roll-brain {
+    min-height: 104px;
+    padding: 18px;
+  }
+
+  .roll-brain strong {
+    font-size: 22px;
+  }
+
+  .brain-stream {
+    min-width: 96px;
+  }
+
+  .pulse-ring {
+    min-width: 58px;
+  }
+
+  .pulse-ring::after {
+    inset: 22px;
+  }
+
+  .task-card {
+    min-height: 112px;
+    padding: 13px;
+  }
+
+  .task-card strong {
+    font-size: 16px;
+    margin: 10px 0 6px;
+  }
+
+  .task-card p {
+    font-size: 13px;
+  }
+
+  .result-stream span {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  .pain-grid article {
+    min-height: 260px;
+    padding: 22px;
+  }
+
+  .pain-grid h3,
+  .workflow-rail h3 {
+    font-size: 22px;
+  }
+
+  .workflow-rail article {
+    min-height: 288px;
+    padding: 24px;
+  }
+
+  .team-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 0.56fr);
+  }
+
+  .worker-card {
+    min-height: 218px;
+  }
+
+  .worker-card strong {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 900px) {
+  :root {
+    --page-inline: clamp(32px, 5vw, 44px);
+    --hero-gap: 34px;
+    --hero-copy-width: 680px;
+    --hero-shell-width: 760px;
+    --hero-shell-min-height: 0;
+    --hero-title-size: 44px;
+    --section-title-size: 36px;
+    --body-size: 17px;
+    --section-y: 86px;
+  }
+
+  .topbar {
+    padding-left: var(--page-inline);
+    padding-right: var(--page-inline);
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    padding-top: 112px;
+  }
+
+  .hero::after {
+    mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 100%);
+  }
+
+  .hero-copy,
+  .hero-interface {
+    max-width: min(100%, var(--hero-shell-width));
+    width: 100%;
+  }
+
+  .hero-copy {
+    grid-column: 1;
+    grid-row: 1;
+    max-width: min(100%, var(--hero-copy-width));
+  }
+
+  .hero-interface {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: start;
+  }
+
+  .command-shell {
+    min-height: 0;
   }
 
   .pain-grid,
   .worker-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workflow-rail,
+  .team-layout,
+  .case-layout,
+  .trust-section {
+    grid-template-columns: 1fr;
   }
 
   .workflow-rail {
@@ -1443,151 +1640,11 @@ a:focus-visible {
   .workflow-rail article:first-child,
   .workflow-rail article:last-child {
     border-radius: 14px;
-  }
-
-  .worker-detail {
     min-height: 0;
-    position: static;
   }
 
-  .trust-tags {
-    justify-content: flex-start;
-  }
-}
-
-@media (max-width: 760px) {
-  .topbar {
-    height: auto;
-    padding: 14px 22px;
-  }
-
-  .nav-links {
-    gap: 14px;
-  }
-
-  .nav-links a {
-    font-size: 13px;
-  }
-
-  .hero {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    padding: 116px 22px 48px;
-  }
-
-  .hero::after {
-    mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 100%);
-  }
-
-  .hero-copy {
-    max-width: none;
-    order: 1;
-  }
-
-  h1 {
-    font-size: 43px;
-  }
-
-  .hero-slogan {
-    font-size: 19px;
-  }
-
-  .hero-body,
-  .section-heading p:not(.eyebrow),
-  .trust-copy p:not(.eyebrow) {
-    font-size: 17px;
-  }
-
-  .hero-actions a {
-    width: 100%;
-  }
-
-  .hero-interface {
-    bottom: auto;
-    left: auto;
-    margin-top: 30px;
-    order: 2;
-    position: relative;
-    right: auto;
-    top: auto;
-    width: 100%;
-  }
-
-  .command-shell {
-    border-radius: 14px;
-    gap: 12px;
-    height: auto;
-    min-height: 0;
-    padding: 14px;
-  }
-
-  .live-route {
-    align-items: flex-start;
-    border-radius: 14px;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .roll-brain {
-    min-height: 94px;
-    padding: 18px;
-  }
-
-  .roll-brain strong {
-    font-size: 21px;
-  }
-
-  .brain-stream {
-    display: none;
-  }
-
-  .pulse-ring {
-    display: none;
-  }
-
-  .dispatch-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .task-card {
-    min-height: 80px;
-  }
-
-  .task-card strong {
-    margin: 8px 0 4px;
-  }
-
-  .task-progress {
-    margin-top: 12px;
-  }
-
-  .chat-card p,
-  .result-card p {
-    font-size: 15px;
-  }
-
-  .result-stream span {
-    font-size: 11px;
-  }
-
-  .pain-section,
-  .workflow-section,
-  .team-section,
-  .case-section,
-  .trust-section {
-    padding: 78px 22px;
-  }
-
-  .pain-grid,
-  .worker-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .pain-grid article,
-  .workflow-rail article,
-  .worker-card {
-    min-height: 0;
+  .workflow-rail span {
+    margin-bottom: 28px;
   }
 
   .team-head {
@@ -1597,27 +1654,39 @@ a:focus-visible {
 
   .team-count {
     min-width: 0;
+    width: 100%;
   }
 
-  .case-steps {
-    padding: 4px 18px;
+  .worker-detail {
+    min-height: 0;
+    position: static;
   }
 
-  .case-steps li {
-    font-size: 17px;
-    padding-left: 42px;
+  .case-layout {
+    align-items: start;
   }
 
-  .footer {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 8px;
-    justify-content: center;
-    padding: 22px;
+  .trust-tags {
+    justify-content: flex-start;
   }
 }
 
-@media (max-width: 430px) {
+@media (max-width: 640px) {
+  :root {
+    --page-inline: 22px;
+    --hero-gap: 30px;
+    --hero-title-size: 36px;
+    --section-title-size: 30px;
+    --body-size: 16px;
+    --section-y: 76px;
+  }
+
+  .topbar {
+    height: auto;
+    padding-bottom: 14px;
+    padding-top: 14px;
+  }
+
   .brand {
     font-size: 16px;
   }
@@ -1631,13 +1700,31 @@ a:focus-visible {
     gap: 10px;
   }
 
-  h1 {
-    font-size: 36px;
+  .nav-links a {
+    font-size: 13px;
   }
 
-  .section-heading h2,
-  .trust-section h2 {
-    font-size: 31px;
+  .hero {
+    padding-bottom: 48px;
+    padding-top: 116px;
+  }
+
+  .hero-slogan {
+    font-size: 18px;
+  }
+
+  .hero-body {
+    line-height: 1.68;
+  }
+
+  .hero-actions a {
+    width: 100%;
+  }
+
+  .command-shell {
+    border-radius: 14px;
+    gap: 10px;
+    padding: 12px;
   }
 
   .shell-top {
@@ -1646,11 +1733,95 @@ a:focus-visible {
     gap: 8px;
   }
 
+  .live-route {
+    align-items: flex-start;
+    border-radius: 14px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .chat-card,
+  .result-card {
+    padding: 13px;
+  }
+
+  .chat-card p,
+  .result-card p {
+    font-size: 15px;
+  }
+
+  .roll-brain {
+    min-height: 94px;
+    padding: 16px;
+  }
+
+  .roll-brain strong {
+    font-size: 21px;
+  }
+
+  .brain-stream,
+  .pulse-ring {
+    display: none;
+  }
+
+  .pain-grid,
+  .worker-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dispatch-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .task-card {
+    min-height: 0;
+    padding: 12px;
+  }
+
+  .task-card strong {
+    font-size: 14px;
+    margin: 8px 0 4px;
+  }
+
+  .task-card p {
+    font-size: 12px;
+  }
+
+  .task-progress {
+    margin-top: 12px;
+  }
+
+  .result-stream span {
+    font-size: 11px;
+  }
+
+  .pain-grid article,
+  .worker-card {
+    min-height: 0;
+  }
+
   .worker-card strong {
     font-size: 27px;
   }
 
   .detail-title {
     font-size: 30px;
+  }
+
+  .case-steps {
+    padding: 4px 18px;
+  }
+
+  .case-steps li {
+    font-size: 16px;
+    padding-left: 42px;
+  }
+
+  .footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+    padding: 22px;
   }
 }

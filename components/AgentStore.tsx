@@ -12,7 +12,8 @@ export function AgentStore({ agents }: AgentStoreProps) {
   const activeAgent = agents.find((agent) => agent.id === selectedAgentId) ?? agents[0] ?? null;
 
   return (
-    <section className="team-section" id="team" aria-labelledby="team-title">
+    <section className="team-section" aria-labelledby="team-title">
+      <span className="section-anchor" id="team" aria-hidden="true" />
       <div className="team-head">
         <div className="section-heading">
           <p className="eyebrow">AI 助手</p>

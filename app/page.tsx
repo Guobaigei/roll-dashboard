@@ -69,7 +69,7 @@ export default function Home() {
           <span>Roll</span>
         </a>
         <div className="nav-links">
-          <a href="#how">工作方式</a>
+          <a href="#why">Roll 是什么</a>
           <a href="#team">AI 助手</a>
           <a href="#case">落地场景</a>
         </div>
@@ -176,6 +176,7 @@ export default function Home() {
       </section>
 
       <section className="pain-section" aria-labelledby="pain-title">
+        <span className="section-anchor" id="why" aria-hidden="true" />
         <div className="section-heading">
           <p className="eyebrow">为什么需要 Roll</p>
           <h2 id="pain-title">不是再多一个招聘后台，而是把重复工作交给 AI。</h2>
@@ -192,8 +193,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="workflow-section" id="how" aria-labelledby="workflow-title">
-        <div className="section-heading centered">
+      <section className="workflow-section" aria-labelledby="workflow-title">
+        <span className="section-anchor" id="how" aria-hidden="true" />
+        <div className="section-heading">
           <p className="eyebrow">它怎么帮你</p>
           <h2 id="workflow-title">从一句话到招聘闭环，Roll 负责把中间的活做完。</h2>
         </div>
@@ -210,7 +212,8 @@ export default function Home() {
 
       <AgentStore agents={agents} />
 
-      <section className="case-section" id="case" aria-labelledby="case-title">
+      <section className="case-section" aria-labelledby="case-title">
+        <span className="section-anchor" id="case" aria-hidden="true" />
         <div className="section-heading">
           <p className="eyebrow">落地场景</p>
           <h2 id="case-title">先从灵工招聘开始，把候选人跟进交给 Roll。</h2>
@@ -258,7 +261,7 @@ export default function Home() {
 
       <footer className="footer">
         <span>Roll</span>
-        <p>常用聊天里的 AI 招聘助手</p>
+        <p>强大的AI招聘助手</p>
       </footer>
     </main>
   );
