@@ -565,6 +565,48 @@ button {
   background: rgba(255, 255, 255, 0.03);
 }
 
+.skill-download-box {
+  margin-top: 32px;
+  padding: 16px var(--space-xl);
+  border-left: 2px solid var(--orange);
+  background: var(--bg-darker);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  max-width: 580px;
+}
+
+.skill-download-tag {
+  font-size: 10px;
+  font-weight: var(--weight-bold);
+  color: var(--orange);
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.skill-download-text {
+  font-size: 13px;
+  color: var(--fg-muted);
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+.skill-download-text strong {
+  color: var(--fg);
+}
+
+.skill-download-link {
+  font-size: 12px;
+  font-weight: var(--weight-bold);
+  color: var(--orange);
+  transition: var(--transition-fast);
+  display: inline-block;
+}
+
+.skill-download-link:hover {
+  color: #ff7b25;
+  text-shadow: 0 0 8px var(--orange-glow);
+}
+
 /* Interactive Terminal Onboarding Styling */
 .hero-terminal-panel {
   display: flex;

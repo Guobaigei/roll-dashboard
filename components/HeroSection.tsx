@@ -51,6 +51,16 @@ export function HeroSection() {
               了解架构体系
             </a>
           </div>
+
+          <div className="skill-download-box">
+            <span className="skill-download-tag">ORCHESTRATION</span>
+            <p className="skill-download-text">
+              <strong>集成到外部 Agent</strong>：支持接入飞书、微信机器人、Cursor 或 Claude Code。
+            </p>
+            <a href="/openclaw-roll-core-skill-latest.zip" download className="skill-download-link">
+              ❯ 下载最新 Roll-Core SKILL 模版 (.ZIP)
+            </a>
+          </div>
         </div>
 
         {/* Right Interactive Onboarding Terminal */}
