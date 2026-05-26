@@ -51,13 +51,28 @@ export function HeroSection() {
           </div>
 
           <div className="skill-download-box">
-            <span className="skill-download-tag">ORCHESTRATION</span>
+            <div className="skill-header">
+              <span className="skill-download-tag">ORCHESTRATOR_INTEGRATION | 集成中台</span>
+              <span className="skill-version-tag">STABLE_V0.9.0</span>
+            </div>
             <p className="skill-download-text">
-              <strong>集成到外部 Agent</strong>：支持接入飞书、微信机器人、Cursor 或 Claude Code。
+              <strong>双向编排协同</strong>：将 Roll
+              内核作为技能热插拔注入到飞书、微信机器人、Cursor 或是 Claude Code 中。
             </p>
-            <a href="/openclaw-roll-core-skill-latest.zip" download className="skill-download-link">
-              ❯ 下载最新 Roll-Core SKILL 模版 (.ZIP)
-            </a>
+            <div className="skill-action-row">
+              <a
+                href="/openclaw-roll-core-skill-latest.zip"
+                download
+                className="skill-action-btn-link"
+              >
+                <span className="btn-icon">↓</span>
+                <span className="btn-text">PULL LATEST SKILL (.ZIP)</span>
+              </a>
+              <div className="skill-meta-specs">
+                <span>SIZE: ~21 KB</span>
+                <span>SHA-256: VERIFIED</span>
+              </div>
+            </div>
           </div>
         </div>
 
