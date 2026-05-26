@@ -88,7 +88,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: var(--font-mono);
-  background: var(--bg);
+  background: transparent; /* 设为透明，以便 z-index: -1 的 Canvas 浮动层可以在 html 背景上方、body 元素下方完美浮现 */
   color: var(--fg);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -429,6 +429,11 @@ button {
 /* ==========================================
    COMMON LAYOUTS
    ========================================== */
+
+.cyber-main-layout {
+  position: relative;
+  isolation: isolate;
+}
 
 .section-anchor {
   display: block;
