@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Terminal } from "@/components/ui/Terminal";
+import { useClipboardFeedback } from "@/components/useClipboardFeedback";
 
 type Step = {
   id: string;
@@ -95,14 +96,12 @@ const STEPS: Step[] = [
 
 export function InteractiveCLI() {
   const [activeStep, setActiveStep] = useState<string>("01");
-  const [copied, setCopied] = useState(false);
+  const { copiedKey, copy } = useClipboardFeedback();
 
   const current = STEPS.find((s) => s.id === activeStep) ?? STEPS[0];
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(current.command);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    void copy(current.command, current.id);
   };
 
   return (
@@ -132,7 +131,7 @@ export function InteractiveCLI() {
             <span className="cli-prompt-symbol">$</span>
             <code className="cli-command-text">{current.command}</code>
             <Button variant="copy" onClick={handleCopy}>
-              {copied ? "COPIED!" : "COPY"}
+              {copiedKey === current.id ? "COPIED!" : "COPY"}
             </Button>
           </div>
         </div>

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { useClipboardFeedback } from "@/components/useClipboardFeedback";
 import type { Agent } from "@/data/agents";
 
 type AgentStoreProps = {
@@ -11,15 +12,15 @@ type AgentStoreProps = {
 
 export function AgentStore({ agents }: AgentStoreProps) {
   const [selectedAgentId, setSelectedAgentId] = useState(agents[0]?.id ?? "");
-  const [copied, setCopied] = useState<string | null>(null);
+  const { copiedKey, copy } = useClipboardFeedback();
 
   const agentById = useMemo(() => new Map(agents.map((agent) => [agent.id, agent])), [agents]);
   const activeAgent = agentById.get(selectedAgentId) ?? agents[0] ?? null;
+  const installCopyKey = activeAgent ? `${activeAgent.id}:install` : "";
+  const runCopyKey = activeAgent ? `${activeAgent.id}:run` : "";
 
   const handleCopy = (cmd: string, key: string) => {
-    navigator.clipboard.writeText(cmd);
-    setCopied(key);
-    setTimeout(() => setCopied(null), 2000);
+    void copy(cmd, key);
   };
 
   return (
@@ -84,9 +85,9 @@ export function AgentStore({ agents }: AgentStoreProps) {
                 <code className="box-command">{activeAgent.installCommand}</code>
                 <Button
                   variant="copy"
-                  onClick={() => handleCopy(activeAgent.installCommand, "install")}
+                  onClick={() => handleCopy(activeAgent.installCommand, installCopyKey)}
                 >
-                  {copied === "install" ? "COPIED" : "COPY"}
+                  {copiedKey === installCopyKey ? "COPIED" : "COPY"}
                 </Button>
               </div>
             </div>
@@ -97,8 +98,11 @@ export function AgentStore({ agents }: AgentStoreProps) {
               <div className="box-code-row">
                 <span className="box-prompt">$</span>
                 <code className="box-command">{activeAgent.runCommand}</code>
-                <Button variant="copy" onClick={() => handleCopy(activeAgent.runCommand, "run")}>
-                  {copied === "run" ? "COPIED" : "COPY"}
+                <Button
+                  variant="copy"
+                  onClick={() => handleCopy(activeAgent.runCommand, runCopyKey)}
+                >
+                  {copiedKey === runCopyKey ? "COPIED" : "COPY"}
                 </Button>
               </div>
             </div>

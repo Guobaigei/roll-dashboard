@@ -12,6 +12,7 @@ export function Button({
   accent,
   active,
   className = "",
+  type = "button",
   ...props
 }: ButtonProps) {
   let computedClass = `ui-btn btn-${variant}`;
@@ -25,7 +26,7 @@ export function Button({
   }
 
   return (
-    <button className={`${computedClass} ${className}`} {...props}>
+    <button type={type} className={`${computedClass} ${className}`} {...props}>
       {children}
     </button>
   );

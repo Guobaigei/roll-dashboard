@@ -1,5 +1,3 @@
-"use client";
-
 import { InteractiveCLI } from "./InteractiveCLI";
 
 export function HeroSection() {
