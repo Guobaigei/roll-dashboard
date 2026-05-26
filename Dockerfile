@@ -5,9 +5,9 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Enable pnpm and build setup
+# Enable the package manager declared in package.json
 COPY package.json pnpm-lock.yaml* ./
-RUN corepack enable pnpm && pnpm i --frozen-lockfile
+RUN corepack enable && pnpm i --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -18,7 +18,7 @@ COPY . .
 # 注意：由于 /Users/rensiwen/... 的本地路径在 Docker 构建时肯定不存在，
 # prepare-skill.js 脚本会自动安全跳过，并复用已在项目 public/ 中提交并暂存的
 # 最新 openclaw-roll-core-skill-latest.zip 静态文件，极速完成零网络离线打包。
-RUN corepack enable pnpm && pnpm run build
+RUN npm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
@@ -28,8 +28,6 @@ ENV NODE_ENV=production
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
-
-RUN apk add --no-cache wget
 
 COPY --from=builder /app/public ./public
 
