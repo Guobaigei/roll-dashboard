@@ -21,13 +21,17 @@ const ARCH_MODULES: Module[] = [
     desc: "CLI 引擎与核心调度大脑。分析大白话指令，基于 LLM 实现多路径自治路由，解析多协议注册表并维护进程连接池。",
     commercialValue:
       "💡 将混沌复杂的指令转化为结构化精准路由。不重构业务，直接替代高昂的中继开发。",
-    code: `import { Router } from "@roll-agent/core";
+    code: `import { routeWithLLM } from "@roll-agent/core";
 
-const router = new Router();
-// 自动解析自然语言
-const plan = await router.route("帮我在boss-a账号下给张三发送签名回复");
-console.log(plan.targetAgent); // => "@roll-agent/browser-use-agent"
-console.log(plan.tool);        // => "zhipin_send_prepared_reply"`,
+// 自动使用大模型解析用户请求的自然语言意图并路由
+const route = await routeWithLLM(
+  "帮我在当前账号下给候选人发送签名回复",
+  registeredAgents,
+  model
+);
+console.log(route.agentName);  // => "browser-use-agent"
+console.log(route.toolName);   // => "send_prepared_reply"
+console.log(route.confidence); // => 1.0`,
   },
   {
     id: "mcp",
@@ -36,11 +40,13 @@ console.log(plan.tool);        // => "zhipin_send_prepared_reply"`,
     desc: "采用标准开放的 MCP 协议进行数据与能力的双向解耦传输。本地子进程采用 stdio 管道，持续长连接常驻服务采用 HTTP 协议流式传输。",
     commercialValue:
       "🔌 标准化生态。支持任意第三方 AI 客户端（如 Cursor, Claude Code）直接插拔接驳本地的所有招聘 Agent 能力。",
-    code: `import { Server } from "@modelcontextprotocol/sdk";
+    code: `import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 
 const server = new Server({
   name: "roll-agent-mcp-bridge",
   version: "1.0.0"
+}, {
+  capabilities: { tools: {} }
 });
 // 开放标准的 Tools 定义供指挥官或外部 IDE 客户端调用
 server.addTool({
@@ -52,18 +58,18 @@ server.addTool({
     id: "execution",
     name: "03. SUB-AGENTS 执行层",
     role: "Execution Workers",
-    desc: "由多个微型垂直 Agent 组成，包括 Native CDP 强抗风控浏览器客户端（browser-use）、云端验签策略大脑（smart-reply）、多渠道飞书通知器（notify-agent）。",
+    desc: "由多个微型垂直 Agent 组成，包括 强抗风控浏览器客户端（browser-use）、云端验签策略大脑（smart-reply）、多渠道飞书通知器（notify-agent）。",
     commercialValue:
       "🎯 分工协作，强隔离运行。浏览器操控不挂，智能回复独立过签，多角色分工完成极其稳健的批量回复闭环。",
     code: `// browser-use-agent 执行签名发送逻辑
-const browser = await Chrome.boot({ profile: "boss-a" });
+const browser = await Chrome.boot({ profile: "recruiter-a" });
 await browser.evaluate(
-  zhipin.sendPreparedReply, 
+  recruiter.sendPreparedReply, 
   { preparedReplyId: "envelope_9x12" }
 );
-// notify-agent 同步至飞书
+// notify-agent 同步至飞书团队群
 await notify.send({
-  text: "候选人 [张三] 已换微信，自动同步完毕。"
+  text: "候选人已获取联系方式，自动同步完毕。"
 });`,
   },
 ];
@@ -319,7 +325,7 @@ export function ArchitectureSection() {
                   浏览器操控助手
                 </text>
                 <text x="572" y="145" fill="#666" fontSize="10" fontFamily="monospace">
-                  Native CDP / Playwright
+                  行为仿真 / 强抗风控
                 </text>
                 <rect x="705" y="133" width="45" height="15" rx="3" fill="#002244" />
                 <text x="710" y="144" fill="#00d2ff" fontSize="9" fontFamily="monospace">

@@ -16,70 +16,69 @@ type Step = {
 const STEPS: Step[] = [
   {
     id: "01",
-    tabName: "01.INSTALL",
-    command: "npm i -g @roll-agent/core",
-    description: "全局安装 Roll 指挥官内核。提供核心编排、进程调度与 MCP 客户端协议层。",
-    commercialValue: "⚡️ 10秒快速轻量接入，本地无需复杂的庞大环境，零开发门槛部署指挥中台。",
-    output: `[pnpm] info: installing @roll-agent/core@latest globally...
-[pnpm] + @roll-agent/core@2.4.15 (node_modules/.bin/roll)
-[pnpm] success: command "roll" is now globally available!
-
-$ roll --version
-Roll Commander Core v2.4.15 (MCP Enabled)`,
+    tabName: "01.VERSION",
+    command: "roll --version",
+    description: "检查 Roll 指挥官内核版本。提供核心编排、进程调度与 MCP 客户端协议层。",
+    commercialValue: "⚡️ 精简、轻量的命令行底座，高弹性的微服务驱动内核。",
+    output: "0.9.0",
   },
   {
     id: "02",
     tabName: "02.DIAGNOSE",
     command: "roll doctor",
-    description: "自我诊断环境。验证 Node.js 运行时、操作系统 CDP 底层库以及网络中台连接状态。",
-    commercialValue:
-      "🛡️ 自动化全链路前置筛查，保障大规模高频招聘操作的稳定性，杜绝中途掉线与配置错误。",
-    output: `[roll] doctor: initiating system diagnostics...
-[ok] node.js version: v22.7.0 (>= 22.6.0 supported)
-[ok] local chrome instance detected (custom data directories enabled)
-[ok] networks: mcp proxy check to "reply-authority.duliday.com" succeeded (ping: 15ms)
-[ok] encryption: signature validation subsystem enabled
-[roll] system is healthy and ready to deploy agents!`,
+    description:
+      "一键环境自我诊断。验证 Node.js 运行时、操作系统底层浏览器接口、大模型服务商、安全验签中台及子 Agent 的环境就绪状态。",
+    commercialValue: "🛡️ 全链路自动化前置检查，保障大规模高频自动化操作的系统稳定性与连接质量。",
+    output: `(node:10377) ExperimentalWarning: Type Stripping is an experimental feature
+2026-05-26T07:53:20.930Z [INFO ] [notify-agent] MCP Server running on stdio
+2026-05-26T07:53:21.058Z [INFO ] [smart-reply-agent] MCP Server running on stdio
+2026-05-26T07:53:21.866Z [INFO ] [smart-reply-agent] Querying smart-reply diagnostic status
+Roll Agent 系统诊断
+
+✓ Node.js 版本: v22.7.0
+✓ 配置文件: /Users/rensiwen/roll.config.yaml
+✓ LLM Providers: anthropic, openai, qwen, deepseek
+✓ Agent 数据目录: /Users/rensiwen/.roll-agent/agents
+✓ 已注册 Agent: 3 个 (notify-agent, smart-reply-agent, browser-use-agent)
+✓ Agent 环境配置 (notify-agent): 声明的必填项已满足
+✓ Agent 环境配置 (smart-reply-agent): 声明的必填项已在运行态生效 (diagnostic_status)
+✓ Agent runtime (browser-use-agent): PID 67631, runtime sidecar 与当前配置一致
+▲ Agent 环境配置 (browser-use-agent): 运行态漂移: RECRUITMENT_EVENTS_DEFAULT_AGENT_ID, RECRUITMENT_EVENTS_API_TOKEN, BROWSER_SECURITY_JSON, BROWSER_INSTANCES_JSON
+✓ Browser runtime (browser-use-agent): 绕过 (使用 legacy 单实例运行时)
+✓ Browser security (browser-use-agent): actionPolicy=log; foregroundPolicy=when-minimized; domainAllowlist=zhipin.com; maxPageContentBytes=102400
+
+存在警告，可按 fix plan 处理。`,
   },
   {
     id: "03",
-    tabName: "03.REGISTER",
-    command: "roll agent install @roll-agent/browser-use-agent",
-    description: "通过标准 MCP 协议，从注册表拉取并热插拔加载「浏览器操控」子 Agent 运行时。",
+    tabName: "03.LIST",
+    command: "roll agent list",
+    description:
+      "列出当前已注册且热加载的子 Agent 运行时形态、状态、通信传输协议（stdio / streamable-http）及物理安装路径。",
     commercialValue:
-      "📦 模块化解耦架构，独立资源分配，不限制多账号多浏览器并行隔离运行，资产更安全。",
-    output: `[roll] pulling registry metdata for "@roll-agent/browser-use-agent"...
-[roll] resolved to stable version 2.4.15
-[roll] registering mcp service "@roll-agent/browser-use" via HTTP-streamable transport...
-[roll] auto-starting browser-use daemon on port 3100...
-[roll] service registered successfully in registry (~/.roll-agent/agents.json)
-[roll] skils updated:
-  - zhipin_read_messages
-  - zhipin_send_prepared_reply
-  - zhipin_exchange_wechat`,
+      "📦 模块化插拔架构，进程级强物理隔离，各子 Agent 自主运转，保证极高安全性与低耗能。",
+    output: `┌───────────────────┬────────┬────────────┬─────────────────┬────────────────────────────────────────┐
+│ Name              │ Status │ Source     │ Transport       │ Location                               │
+├───────────────────┼────────┼────────────┼─────────────────┼────────────────────────────────────────┤
+│ notify-agent      │ idle   │ local-path │ stdio           │ ~/Next-PJ/nano-agent/agents/notify     │
+│ smart-reply-agent │ idle   │ installed  │ stdio           │ ~/.roll-agent/agents/smart-reply-agent │
+│ browser-use-agent │ online │ local-path │ streamable-http │ http://127.0.0.1:3100/mcp              │
+└───────────────────┴────────┴────────────┴─────────────────┴────────────────────────────────────────┘`,
   },
   {
     id: "04",
     tabName: "04.EXECUTE",
-    command: 'roll ask "帮我查看boss直聘上有多少未读消息"',
+    command: 'roll ask "帮我检查下浏览器的状态"',
     description:
-      "向指挥官说一句大白话。Commander 将用大模型自主路由，将目标分解并调用对应子 Agent 执行。",
+      "向指挥官说一句大白话指令。Commander 将通过大模型自主分析意图、进行路由决策、连接对应子 Agent 并返回结构化执行结果。",
     commercialValue:
-      "📈 变高门槛的复杂操作为一句话指令。AI 自动化筛人、秒回候选人、微信换取，企业直接降低 70% 劳动力损耗。",
-    output: `[roll] raw input received: "帮我查看boss直聘上有多少未读消息"
-[roll] routing request with deepseek-chat...
-[roll] routed to agent: "browser-use-agent" (score: 0.98)
-[roll] executing tool: "zhipin_read_messages" with { "onlyUnread": true }
-[browser-use] booting headless-cdp chrome profile "boss-a"...
-[browser-use] loading chat page... [success]
-[browser-use] reading conversation lists...
-[roll] result from agent:
-  {
-    "totalConversationsChecked": 25,
-    "unreadCount": 12,
-    "latestCandidates": ["张三 (前端开发)", "李四 (灵工店员)"]
-  }
-[roll] 刚才帮你查了一下，BOSS直聘当前账号共有 12 条未读消息，主要包括前端开发张三和灵工店员李四。`,
+      "📈 变高门槛的复杂代码调用为极简的一句话自然语言。完美结合业务场景，多账号并发状态即时反馈。",
+    output: `→ 分析意图： "帮我检查下浏览器的状态"
+→ 路由决策： browser-use-agent.browser_status (置信度: 1)
+→ 连接 Agent "browser-use-agent"...
+→ 调用 browser-use-agent.browser_status
+{"running":true,"headless":false,"mode":"managed-cdp","activeSessions":[{"browserInstance":"boss-a","platform":"zhipin","pagesOpen":1,"currentUrl":"https://www.zhipin.com/"}],"instances":[{"id":"boss-a","platform":"zhipin","mode":"managed-cdp","cdp":{"endpoint":"http://127.0.0.1:9222","port":9222,"versionReachable":true},"profile":{"userDataDir":"/Users/rensiwen/.roll-agent/browser/profiles/boss-a"}}],"replyAuthorityKeysLoaded":true,"visualCursorEnabled":true,"visualActivityEnabled":true}
+✓ 调用完成`,
   },
 ];
 
@@ -128,7 +127,7 @@ export function InteractiveCLI() {
         </div>
 
         {/* Terminal Simulation Panel - Handled by UI Terminal Component */}
-        <Terminal height="180px">
+        <Terminal height="200px">
           <div className="terminal-line input-line">
             <span className="prompt">$</span>
             <span className="typing-text">{current.command}</span>

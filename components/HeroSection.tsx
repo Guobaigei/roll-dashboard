@@ -22,15 +22,16 @@ export function HeroSection() {
               <span className="value-bullet">❯</span>
               <p>
                 <strong>无侵入私域接驳</strong>
-                ：不强行改写系统。直接在飞书、微信后台监听，一句话流式调度本地 Chrome
-                执行，数据不出本地。
+                ：不强行改写系统。由外部 IM 工具（如飞书等）联动触发，一句话流式调度本地 Chrome
+                隔离用户配置执行，数据完全不出本地。
               </p>
             </div>
             <div className="value-item">
               <span className="value-bullet">❯</span>
               <p>
-                <strong>硬核物理防封</strong>：Native CDP
-                级行为仿真与滑块告警中断机制，高并发多账号隔离运行，业务稳定率提升 300%。
+                <strong>硬核物理防封</strong>
+                ：行为仿真级抗风控接管与滑块告警中断机制，高并发多账号隔离运行，业务稳定率提升
+                300%。
               </p>
             </div>
             <div className="value-item">

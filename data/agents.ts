@@ -18,16 +18,15 @@ export const agents: Agent[] = [
     id: "browser-use-agent",
     roleName: "浏览器操控助手",
     overview:
-      "采用 Native CDP 对抗技术接管本机 Chrome 浏览器。自动登录 BOSS 直聘与鱼泡网，执行批量读取未读、筛选打招呼、简历画像解析以及主动微信交换（BOSS直聘）。内置滑块验证码智能检测，安全中断保护您的账号产值。",
+      "采用行为仿真级防封技术接管本机 Chrome 浏览器。自动登录第三方招聘平台，执行批量读取未读、筛选打招呼、简历画像解析以及主动联系方式交换。内置滑块验证码智能检测，安全中断保护您的账号产值。",
     plainSummary:
-      "Native CDP 安全操控 Chrome 浏览器，秒级并发处理 BOSS / 鱼泡未读，无侵入式自动换微。",
-    examplePrompt:
-      "roll run browser-use-agent zhipin_read_messages --input-json '{\"onlyUnread\":true}'",
+      "行为仿真级安全操控 Chrome 浏览器，秒级并发处理第三方招聘平台未读消息，无侵入式自动获取联系方式。",
+    examplePrompt: "roll run browser-use-agent read_messages --input-json '{\"onlyUnread\":true}'",
     businessOutcome:
       "⚡️ 告别枯燥的人工手动翻页与打招呼，实现高频高危操作的物理抗封与 24 小时高并发在线。",
     accent: "orange",
     category: "网页自动化与账号托管",
-    tags: ["Native CDP", "BOSS 换微", "安全风控中断", "并发账号"],
+    tags: ["强抗风控接管", "获取联系方式", "安全风控中断", "并发账号"],
     installCommand: "roll agent install @roll-agent/browser-use-agent",
     runCommand: "roll run browser-use-agent [tool_name]",
     runtimeDetails: "物理常驻后台服务 (HTTP-streamable:3100) | Chrome 隔离用户配置",
@@ -36,7 +35,7 @@ export const agents: Agent[] = [
     id: "smart-reply-agent",
     roleName: "智能回复助手",
     overview:
-      "智能回复逻辑的核心大脑。本地 Agent 仅作为数据搬运与网关，核心回复逻辑深度接驳 Duliday 的 Reply Authority Service 战略回复中台。在云端秒级加载企业岗位、排班、薪资、门店定位知识，自动应用过滤规则（过滤学生/年龄超标），并签发带加密签名的回复内容。",
+      "智能回复逻辑的核心大脑。本地 Agent 仅作为数据安全搬运与执行网关，核心回复逻辑深度接驳 Reply Authority Service 战略回复中台。在云端秒级加载企业岗位、排班、薪资、门店定位等上下文知识，自动应用过滤与初筛规则（如过滤学生、限制年龄等），并自动签发带高强度安全防伪签名的回复内容。",
     plainSummary:
       "接驳云端 Reply Authority，全自动执行匹配策略，高精稳健签发无错、统一的企业级应答。",
     examplePrompt:
@@ -54,13 +53,13 @@ export const agents: Agent[] = [
     id: "notify-agent",
     roleName: "消息通知助手",
     overview:
-      "极简、高效的多端通知分发哨兵。当前版本提供飞书自定义群机器人 (Webhook) 数据流推送服务。当 `browser-use-agent` 自动完成 BOSS 微信交换、聊天触发验证码报错等核心业务流状态变更时，该哨兵即时将状态及结构化文本内容广播给后端团队群。",
+      "极简、高效的多端通知分发哨兵。当前版本提供飞书自定义群机器人 (Webhook) 数据流推送服务。当 `browser-use-agent` 自动完成联系方式获取、聊天触发验证码报错等核心业务流状态变更时，该哨兵即时将状态及结构化文本内容广播给后端团队群。",
     plainSummary:
-      "飞书群机器人单向 Webhook 哨兵，在微信成功交换或滑块报错时，毫秒级通知招聘群跟进。",
+      "飞书群机器人单向 Webhook 哨兵，在成功获取联系方式或滑块报错时，毫秒级通知招聘群跟进。",
     examplePrompt:
-      'roll run notify-agent send_feishu_message --input-json \'{"text":"[Roll] 候选人李四已自动换取微信成功"}\'',
+      'roll run notify-agent send_feishu_message --input-json \'{"text":"[Roll] 候选人李四已自动换取联系方式成功"}\'',
     businessOutcome:
-      "📢 全流程透明，无漏回漏跟。负责人不用反复查岗进度，线下招聘顾问即时衔接微信私域转化。",
+      "📢 全流程透明，无漏回漏跟。负责人不用反复查岗进度，线下招聘顾问即时衔接私域转化。",
     accent: "green",
     category: "状态广播与即时即达哨兵",
     tags: ["飞书 Webhook", "单向出站通知", "异常自动报警", "线下私域流接驳"],
