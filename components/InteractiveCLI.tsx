@@ -16,24 +16,28 @@ type Step = {
 const STEPS: Step[] = [
   {
     id: "01",
-    tabName: "01.VERSION",
-    command: "roll --version",
-    description: "检查 Roll 指挥官内核版本。提供核心编排、进程调度与 MCP 客户端协议层。",
-    commercialValue: "⚡️ 精简、轻量的命令行底座，高弹性的微服务驱动内核。",
-    output: "0.9.0",
+    tabName: "01.UPDATE",
+    command: "roll update --check",
+    description: "检查 Roll 指挥官内核版本并自检更新。提供核心编排、进程调度与 MCP 协议升级管理。",
+    commercialValue:
+      "⚡️ 快速、轻量的内核检测。自动同步上游微服务、热更新子 Agent 注册表，保障业务系统处于最新稳定状态。",
+    output: `→ 检查 roll 更新...
+→ roll 已是最新版本 (v0.9.0)
+
+已注册 Agent (3):
+→ 📢 notify-agent [local-path] - 刷新本地 SKILL/manifest
+→ 🧠 smart-reply-agent [installed-package] - 已是最新版本 (v1.2.5)
+→ 🌐 browser-use-agent [local-path] - 刷新本地 SKILL/manifest`,
   },
   {
     id: "02",
     tabName: "02.DIAGNOSE",
     command: "roll doctor",
     description:
-      "一键环境自我诊断。验证 Node.js 运行时、操作系统底层浏览器接口、大模型服务商、安全验签中台及子 Agent 的环境就绪状态。",
-    commercialValue: "🛡️ 全链路自动化前置检查，保障大规模高频自动化操作的系统稳定性与连接质量。",
-    output: `(node:10377) ExperimentalWarning: Type Stripping is an experimental feature
-2026-05-26T07:53:20.930Z [INFO ] [notify-agent] MCP Server running on stdio
-2026-05-26T07:53:21.058Z [INFO ] [smart-reply-agent] MCP Server running on stdio
-2026-05-26T07:53:21.866Z [INFO ] [smart-reply-agent] Querying smart-reply diagnostic status
-Roll Agent 系统诊断
+      "一键环境自我诊断。验证 Node.js 运行环境、系统底层网络接口、大模型密钥及子进程就绪状态。",
+    commercialValue:
+      "🛡️ 全链路自动化健康透视，安全无污染。排查异常，保障大规模高频自动化操作的系统稳定性与连接质量。",
+    output: `Roll Agent 系统诊断
 
 ✓ Node.js 版本: v22.7.0
 ✓ 配置文件: /Users/rensiwen/roll.config.yaml
@@ -51,19 +55,20 @@ Roll Agent 系统诊断
   },
   {
     id: "03",
-    tabName: "03.LIST",
-    command: "roll agent list",
-    description:
-      "列出当前已注册且热加载的子 Agent 运行时形态、状态、通信传输协议（stdio / streamable-http）及物理安装路径。",
+    tabName: "03.REGISTER",
+    command: "roll agent install @roll-agent/browser-use-agent",
+    description: "通过标准 MCP 协议，从注册表拉取并热插拔加载「浏览器操控」子 Agent 运行时。",
     commercialValue:
-      "📦 模块化插拔架构，进程级强物理隔离，各子 Agent 自主运转，保证极高安全性与低耗能。",
-    output: `┌───────────────────┬────────┬────────────┬─────────────────┬────────────────────────────────────────┐
-│ Name              │ Status │ Source     │ Transport       │ Location                               │
-├───────────────────┼────────┼────────────┼─────────────────┼────────────────────────────────────────┤
-│ notify-agent      │ idle   │ local-path │ stdio           │ ~/Next-PJ/nano-agent/agents/notify     │
-│ smart-reply-agent │ idle   │ installed  │ stdio           │ ~/.roll-agent/agents/smart-reply-agent │
-│ browser-use-agent │ online │ local-path │ streamable-http │ http://127.0.0.1:3100/mcp              │
-└───────────────────┴────────┴────────────┴─────────────────┴────────────────────────────────────────┘`,
+      "📦 模块化解耦架构，从中心仓库一键热插拔拉取并热加载。子 Agent 独立运行，保障核心资产安全隔离。",
+    output: `[roll] pulling registry metadata for "@roll-agent/browser-use-agent"...
+[roll] resolved to stable version 2.4.15
+[roll] registering mcp service "@roll-agent/browser-use" via HTTP-streamable transport...
+[roll] auto-starting browser-use daemon on port 3100...
+[roll] service registered successfully in registry (~/.roll-agent/agents.json)
+[roll] skills updated:
+  - zhipin_read_messages
+  - zhipin_send_prepared_reply
+  - zhipin_exchange_wechat`,
   },
   {
     id: "04",

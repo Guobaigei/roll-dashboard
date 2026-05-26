@@ -270,6 +270,9 @@ body {
 
 .ui-card-body {
   padding: var(--space-xxl);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Reusable Cyber Table */
@@ -902,6 +905,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 1;
 }
 
 .arch-svg-element {
