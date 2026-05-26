@@ -12,12 +12,13 @@ RUN corepack enable && pnpm i --frozen-lockfile
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # 注意：由于 /Users/rensiwen/... 的本地路径在 Docker 构建时肯定不存在，
-# prepare-skill.js 脚本会自动安全跳过，并复用已在项目 public/ 中提交并暂存的
-# 最新 openclaw-roll-core-skill-latest.zip 静态文件，极速完成零网络离线打包。
+# prepare-skill.js 会尝试从 npm registry 同步展示版本号；失败时回退到 public 中暂存的
+# roll-versions.json。Skill zip 始终复用 public 中已提交的静态文件。
 RUN npm run build
 
 # Production image, copy all the files and run next
@@ -25,6 +26,7 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs

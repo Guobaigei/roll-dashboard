@@ -1,6 +1,9 @@
+import versions from "../public/roll-versions.json";
 import { InteractiveCLI } from "./InteractiveCLI";
 
 export function HeroSection() {
+  const stableVersion = `STABLE_V${versions.core}`;
+
   return (
     <section className="hero-section" id="top" aria-labelledby="hero-title">
       <div className="hero-grid-layout">
@@ -53,7 +56,7 @@ export function HeroSection() {
           <div className="skill-download-box">
             <div className="skill-header">
               <span className="skill-download-tag">ORCHESTRATOR_INTEGRATION | 集成中台</span>
-              <span className="skill-version-tag">STABLE_V0.9.0</span>
+              <span className="skill-version-tag">{stableVersion}</span>
             </div>
             <p className="skill-download-text">
               <strong>双向编排协同</strong>：将 Roll

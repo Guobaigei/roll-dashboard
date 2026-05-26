@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Terminal } from "@/components/ui/Terminal";
 import { useClipboardFeedback } from "@/components/useClipboardFeedback";
+import versions from "../public/roll-versions.json";
 
 type Step = {
   id: string;
@@ -26,11 +27,11 @@ const STEPS: Step[] = [
     commercialValue:
       "⚡️ 10秒快速、轻量全局加载，无侵入本地环境，零重构成本一键布设招聘自动化大脑。",
     output: `→ 检查 roll 更新...
-→ roll 已是最新版本 (v0.9.0)
+→ roll 已是最新版本 (v${versions.core})
 
 已注册 Agent (3):
 → 📢 notify-agent [local-path] - 刷新本地 SKILL/manifest
-→ 🧠 smart-reply-agent [installed-package] - 已是最新版本 (v1.2.5)
+→ 🧠 smart-reply-agent [installed-package] - 已是最新版本 (v${versions.smartReply})
 → 🌐 browser-use-agent [local-path] - 刷新本地 SKILL/manifest`,
   },
   {
@@ -67,7 +68,7 @@ const STEPS: Step[] = [
     commercialValue:
       "📦 模块化解耦架构，从中心仓库一键热插拔拉取并热加载。子 Agent 独立运行，保障核心资产安全隔离。",
     output: `[roll] pulling registry metadata for "@roll-agent/browser-use-agent"...
-[roll] resolved to stable version 2.4.15
+[roll] resolved to stable version ${versions.browserUse}
 [roll] registering mcp service "@roll-agent/browser-use" via HTTP-streamable transport...
 [roll] auto-starting browser-use daemon on port 3100...
 [roll] service registered successfully in registry (~/.roll-agent/agents.json)
