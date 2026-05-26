@@ -1,25 +1,19 @@
 import dynamic from "next/dynamic";
-import { CaseSection } from "@/components/CaseSection";
+import { ArchitectureSection } from "@/components/ArchitectureSection";
 import { HeroSection } from "@/components/HeroSection";
-import { PainSection } from "@/components/PainSection";
 import { SiteFooter } from "@/components/SiteFooter";
 import { TopNav } from "@/components/TopNav";
-import { TrustSection } from "@/components/TrustSection";
-import { WorkflowSection } from "@/components/WorkflowSection";
 import { agents } from "@/data/agents";
 
 const AgentStore = dynamic(() => import("@/components/AgentStore").then((mod) => mod.AgentStore));
 
 export default function Home() {
   return (
-    <main>
+    <main className="cyber-main-layout">
       <TopNav />
       <HeroSection />
-      <PainSection />
-      <WorkflowSection />
+      <ArchitectureSection />
       <AgentStore agents={agents} />
-      <CaseSection />
-      <TrustSection />
       <SiteFooter />
     </main>
   );
