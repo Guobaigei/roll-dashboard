@@ -149,22 +149,29 @@ export function ArchitectureSection() {
                 strokeDasharray="6 4"
               />
               <path
+                id="flow1b"
+                d="M 440 240 H 500"
+                stroke="rgba(255, 123, 0, 0.2)"
+                strokeWidth="2"
+                strokeDasharray="6 4"
+              />
+              <path
                 id="flow2"
-                d="M 440 240 Q 510 240 510 130 H 560"
+                d="M 500 240 Q 530 240 530 130 H 560"
                 stroke="rgba(0, 210, 255, 0.2)"
                 strokeWidth="2"
                 strokeDasharray="6 4"
               />
               <path
                 id="flow3"
-                d="M 440 240 H 560"
+                d="M 500 240 H 560"
                 stroke="rgba(255, 255, 255, 0.2)"
                 strokeWidth="2"
                 strokeDasharray="6 4"
               />
               <path
                 id="flow4"
-                d="M 440 240 Q 510 240 510 350 H 560"
+                d="M 500 240 Q 530 240 530 350 H 560"
                 stroke="rgba(0, 255, 102, 0.2)"
                 strokeWidth="2"
                 strokeDasharray="6 4"
@@ -174,21 +181,24 @@ export function ArchitectureSection() {
               <circle r="4" fill="#ff7b00" className="animated-particle p1">
                 <animateMotion dur="3s" repeatCount="indefinite" path="M 170 240 H 280" />
               </circle>
+              <circle r="4" fill="#ff7b00" className="animated-particle p1b">
+                <animateMotion dur="2.5s" repeatCount="indefinite" path="M 440 240 H 500" />
+              </circle>
               <circle r="4" fill="#00d2ff" className="animated-particle p2">
                 <animateMotion
                   dur="4s"
                   repeatCount="indefinite"
-                  path="M 440 240 Q 510 240 510 130 H 560"
+                  path="M 500 240 Q 530 240 530 130 H 560"
                 />
               </circle>
               <circle r="4" fill="#ffffff" className="animated-particle p3">
-                <animateMotion dur="3.5s" repeatCount="indefinite" path="M 440 240 H 560" />
+                <animateMotion dur="3.5s" repeatCount="indefinite" path="M 500 240 H 560" />
               </circle>
               <circle r="4" fill="#00ff66" className="animated-particle p4">
                 <animateMotion
                   dur="4s"
                   repeatCount="indefinite"
-                  path="M 440 240 Q 510 240 510 350 H 560"
+                  path="M 500 240 Q 530 240 530 350 H 560"
                 />
               </circle>
 
@@ -276,9 +286,9 @@ export function ArchitectureSection() {
 
               {/* Node 3: MCP Gateway / Protocol client */}
               <g className={`svg-node ${activeMod === "mcp" ? "focused" : ""}`}>
-                <circle cx="440" cy="240" r="16" fill="#0f0f11" stroke="#fff" strokeWidth="2" />
+                <circle cx="500" cy="240" r="16" fill="#0f0f11" stroke="#fff" strokeWidth="2" />
                 <text
-                  x="434"
+                  x="494"
                   y="244"
                   fill="#fff"
                   fontSize="11"
@@ -287,7 +297,7 @@ export function ArchitectureSection() {
                 >
                   M
                 </text>
-                <text x="415" y="272" fill="#888" fontSize="9" fontFamily="monospace">
+                <text x="475" y="272" fill="#888" fontSize="9" fontFamily="monospace">
                   MCP Gate
                 </text>
               </g>

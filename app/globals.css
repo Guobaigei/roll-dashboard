@@ -906,7 +906,10 @@ button {
 
 .arch-svg-element {
   width: 100%;
+  max-width: 720px;
   height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
 .svg-node {
