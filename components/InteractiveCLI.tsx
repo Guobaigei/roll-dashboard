@@ -8,6 +8,7 @@ type Step = {
   id: string;
   tabName: string;
   command: string;
+  terminalCommand: string; // 终端中执行的示例命令，可以与一键复制的主命令不同
   description: string;
   commercialValue: string;
   output: string;
@@ -16,11 +17,13 @@ type Step = {
 const STEPS: Step[] = [
   {
     id: "01",
-    tabName: "01.UPDATE",
-    command: "roll update --check",
-    description: "检查 Roll 指挥官内核版本并自检更新。提供核心编排、进程调度与 MCP 协议升级管理。",
+    tabName: "01.INSTALL",
+    command: "npm i -g @roll-agent/core",
+    terminalCommand: "roll update --check",
+    description:
+      "全局一键安装 Roll 指挥官内核。提供核心编排、多账号管理与开放的 MCP 客户端协议层。",
     commercialValue:
-      "⚡️ 快速、轻量的内核检测。自动同步上游微服务、热更新子 Agent 注册表，保障业务系统处于最新稳定状态。",
+      "⚡️ 10秒快速、轻量全局加载，无侵入本地环境，零重构成本一键布设招聘自动化大脑。",
     output: `→ 检查 roll 更新...
 → roll 已是最新版本 (v0.9.0)
 
@@ -33,6 +36,7 @@ const STEPS: Step[] = [
     id: "02",
     tabName: "02.DIAGNOSE",
     command: "roll doctor",
+    terminalCommand: "roll doctor",
     description:
       "一键环境自我诊断。验证 Node.js 运行环境、系统底层网络接口、大模型密钥及子进程就绪状态。",
     commercialValue:
@@ -57,6 +61,7 @@ const STEPS: Step[] = [
     id: "03",
     tabName: "03.REGISTER",
     command: "roll agent install @roll-agent/browser-use-agent",
+    terminalCommand: "roll agent install @roll-agent/browser-use-agent",
     description: "通过标准 MCP 协议，从注册表拉取并热插拔加载「浏览器操控」子 Agent 运行时。",
     commercialValue:
       "📦 模块化解耦架构，从中心仓库一键热插拔拉取并热加载。子 Agent 独立运行，保障核心资产安全隔离。",
@@ -74,6 +79,7 @@ const STEPS: Step[] = [
     id: "04",
     tabName: "04.EXECUTE",
     command: 'roll ask "帮我检查下浏览器的状态"',
+    terminalCommand: 'roll ask "帮我检查下浏览器的状态"',
     description:
       "向指挥官说一句大白话指令。Commander 将通过大模型自主分析意图、进行路由决策、连接对应子 Agent 并返回结构化执行结果。",
     commercialValue:
@@ -135,7 +141,7 @@ export function InteractiveCLI() {
         <Terminal height="200px">
           <div className="terminal-line input-line">
             <span className="prompt">$</span>
-            <span className="typing-text">{current.command}</span>
+            <span className="typing-text">{current.terminalCommand}</span>
           </div>
           <div className="terminal-output">{current.output}</div>
           <div className="terminal-line cursor-line">
