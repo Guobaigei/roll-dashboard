@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { Agent } from "@/data/agents";
 
 type AgentStoreProps = {
@@ -9,10 +9,11 @@ type AgentStoreProps = {
 
 export function AgentStore({ agents }: AgentStoreProps) {
   const [selectedAgentId, setSelectedAgentId] = useState(agents[0]?.id ?? "");
-  const activeAgent = agents.find((agent) => agent.id === selectedAgentId) ?? agents[0] ?? null;
+  const agentById = useMemo(() => new Map(agents.map((agent) => [agent.id, agent])), [agents]);
+  const activeAgent = agentById.get(selectedAgentId) ?? agents[0] ?? null;
 
   return (
-    <section className="team-section" aria-labelledby="team-title">
+    <section className="team-section below-fold" aria-labelledby="team-title">
       <span className="section-anchor" id="team" aria-hidden="true" />
       <div className="team-head">
         <div className="section-heading">
@@ -30,7 +31,7 @@ export function AgentStore({ agents }: AgentStoreProps) {
       </div>
 
       <div className="team-layout">
-        <div className="worker-grid" aria-label="AI 助手列表">
+        <section className="worker-grid" aria-label="AI 助手列表">
           {agents.map((agent) => (
             <button
               className={`worker-card accent-${agent.accent} ${
@@ -45,7 +46,7 @@ export function AgentStore({ agents }: AgentStoreProps) {
               <span>{agent.plainSummary}</span>
             </button>
           ))}
-        </div>
+        </section>
 
         {activeAgent ? (
           <aside className={`worker-detail accent-${activeAgent.accent}`} aria-label="AI 助手详情">

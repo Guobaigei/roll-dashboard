@@ -16,6 +16,7 @@
 | UI | React 19 |
 | 语言 | TypeScript（`strict: true`） |
 | 样式 | 原生 CSS（`app/globals.css`），**未使用** Tailwind / CSS Modules |
+| Lint / 格式 | Biome 2.4（`next` + `react` recommended domains） |
 | 包管理 | pnpm |
 
 ## 目录结构
@@ -23,14 +24,23 @@
 ```
 roll-dashboard/
 ├── app/
-│   ├── page.tsx          # 首页：Hero、痛点、工作流、落地场景等
-│   ├── layout.tsx        # 根布局与 SEO metadata
+│   ├── page.tsx          # 首页入口，组合各 Server Component
+│   ├── layout.tsx        # 根布局、SEO metadata、viewport
 │   ├── globals.css       # 全部页面样式
 │   └── icon.svg
 ├── components/
-│   └── AgentStore.tsx    # AI 助手列表 + 详情（Client Component）
+│   ├── AgentStore.tsx    # AI 助手列表 + 详情（Client Component）
+│   ├── HeroSection.tsx   # Hero 区
+│   ├── PainSection.tsx   # 痛点区
+│   ├── WorkflowSection.tsx
+│   ├── CaseSection.tsx
+│   ├── TrustSection.tsx
+│   ├── TopNav.tsx
+│   └── SiteFooter.tsx
 ├── data/
-│   └── agents.ts         # AI 助手静态数据与类型定义
+│   ├── agents.ts         # AI 助手静态数据与类型定义
+│   └── page-content.ts   # 首页文案静态数据
+├── biome.json            # Biome lint / format 配置
 ├── AGENT.md              # 本文件
 └── README.md             # 简要启动说明
 ```
@@ -41,10 +51,10 @@ roll-dashboard/
 
 | 锚点 | 区块 | 主要文件 |
 |---|---|---|
-| `#why` | 为什么需要 Roll | `app/page.tsx` → `painPoints` |
-| `#how` | 工作流说明 | `app/page.tsx` → `workflowSteps` |
+| `#why` | 为什么需要 Roll | `components/PainSection.tsx` |
+| `#how` | 工作流说明 | `components/WorkflowSection.tsx` |
 | `#team` | AI 助手展示 | `components/AgentStore.tsx` + `data/agents.ts` |
-| `#case` | 落地场景 | `app/page.tsx` → `caseSteps` |
+| `#case` | 落地场景 | `components/CaseSection.tsx` |
 
 `AgentStore` 通过 `section-anchor` + `id="team"` 实现锚点定位；`globals.css` 中 `#team` 等设置了 `scroll-margin-top: 86px` 以适配固定顶栏。
 
@@ -76,10 +86,17 @@ export type Agent = {
 
 ## 组件约定
 
-- **Server Component 优先**：`app/page.tsx` 为 Server Component，直接 `import { agents }` 传给 `AgentStore`
-- **Client Component 最小化**：仅 `AgentStore.tsx` 使用 `"use client"`（需要 `useState` 切换选中助手）
+- **Server Component 优先**：页面区块拆为独立 Server Component；`AgentStore` 通过 `next/dynamic` 懒加载
+- **Client Component 最小化**：仅 `AgentStore.tsx` 使用 `"use client"`
 - **路径别名**：`@/*` 映射项目根目录（见 `tsconfig.json`）
 - **无 UI 库**：不引入 shadcn、MUI 等，样式写在 `globals.css`
+
+## 代码质量
+
+- **Biome**：配置于 `biome.json`，启用 `recommended` 规则及 `next` / `react` domains（与 Next.js 16 `create-next-app` 官方 Biome 模板一致）
+- **TypeScript**：`strict: true`，独立 `pnpm typecheck`
+- **Next.js 16 注意**：`next lint` 已移除，`next build` 不再自动跑 lint；提交前请手动运行 `pnpm check`
+- **`app/globals.css`**：Biome lint 已关闭（遗留 CSS 体量大），格式化仍生效；`prefers-reduced-motion` 与 `.below-fold` 的 `content-visibility` 已配置
 
 ## 样式约定
 
@@ -94,17 +111,21 @@ export type Agent = {
 pnpm install    # 安装依赖
 pnpm dev        # 本地开发（默认 http://localhost:3000）
 pnpm build      # 生产构建
+pnpm lint       # Biome 格式 + lint + import 排序
+pnpm lint:fix   # 自动修复可安全修复的问题
+pnpm format     # 仅格式化
 pnpm typecheck  # TypeScript 检查（tsc --noEmit）
+pnpm check      # lint + typecheck
 ```
 
-修改 TypeScript 后建议运行 `pnpm typecheck`；样式改动在浏览器中目视确认即可。
+修改代码后建议运行 `pnpm check`；样式改动在浏览器中目视确认即可。
 
 ## 修改指南
 
 ### 应该做的
 
 - 保持改动范围小，只动与任务相关的文件
-- 营销文案、静态数据优先改 `app/page.tsx` 内联数组或 `data/agents.ts`
+- 营销文案、静态数据优先改 `data/page-content.ts` 或 `data/agents.ts`
 - 新样式追加到 `globals.css`，沿用现有 CSS 变量与 BEM 式类名
 - 遵循现有中文语气：面向招聘业务人员，强调「不用换系统」「一句话交代」等产品卖点
 
@@ -118,12 +139,14 @@ pnpm typecheck  # TypeScript 检查（tsc --noEmit）
 
 ## SEO 与元信息
 
-`app/layout.tsx` 中的 `metadata`：
+`app/layout.tsx` 中的 `metadata` 与 `viewport`：
 
 - **title**: `Roll | 强大的AI招聘助手`
 - **description**: 飞书/微信/钉钉 + 候选人消息处理相关描述
+- **openGraph / twitter**: 社交分享元信息
+- **metadataBase**: 读取 `NEXT_PUBLIC_SITE_URL`（未设置时默认 `http://localhost:3000`）
 
-更新产品定位时同步修改此处。
+更新产品定位时同步修改此处；部署生产环境请配置 `NEXT_PUBLIC_SITE_URL`。
 
 ## 产品语境（供文案参考）
 
@@ -140,9 +163,10 @@ Roll 是面向**灵工/招聘**场景的 AI 助手平台：
 
 | 需求 | 文件 |
 |---|---|
-| 改首页文案/区块 | `app/page.tsx` |
+| 改首页文案/区块 | `data/page-content.ts` 或对应 `components/*Section.tsx` |
 | 改 AI 助手列表 | `data/agents.ts` |
 | 改助手交互 UI | `components/AgentStore.tsx` |
 | 改样式/布局/动效 | `app/globals.css` |
 | 改页面 title/description | `app/layout.tsx` |
+| 改 Biome 规则 / 格式 | `biome.json` |
 | 改站点图标 | `app/icon.svg` |

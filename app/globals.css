@@ -53,12 +53,30 @@ html {
   pointer-events: none;
 }
 
+.below-fold {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 640px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 body {
   background: var(--canvas);
   color: var(--ink);
   font-family:
-    "Avenir Next", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
-    sans-serif;
+    "Avenir Next", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   letter-spacing: 0;
   margin: 0;
 }
@@ -441,8 +459,7 @@ p {
   --task-tint: rgba(254, 110, 0, 0.05);
   background:
     linear-gradient(145deg, rgba(255, 255, 253, 0.98), rgba(255, 250, 243, 0.92)),
-    linear-gradient(180deg, var(--task-tint), transparent 64%),
-    var(--surface-card);
+    linear-gradient(180deg, var(--task-tint), transparent 64%), var(--surface-card);
   border: 1px solid var(--line);
   border-radius: 14px;
   animation: task-breathe 4.8s ease-in-out infinite;
@@ -855,8 +872,7 @@ h1 span:last-child {
   --worker-wash: color-mix(in srgb, var(--accent-color, var(--orange)) 5%, transparent);
   background:
     linear-gradient(150deg, rgba(255, 255, 253, 0.98), rgba(255, 249, 241, 0.94)),
-    linear-gradient(180deg, var(--worker-wash), transparent 58%),
-    var(--surface-card);
+    linear-gradient(180deg, var(--worker-wash), transparent 58%), var(--surface-card);
   color: inherit;
   display: grid;
   gap: 16px;
@@ -885,7 +901,12 @@ h1 span:last-child {
 
 .worker-card::after {
   animation: worker-ready 4.2s ease-in-out infinite;
-  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-color, var(--orange)) 22%, transparent), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--accent-color, var(--orange)) 22%, transparent),
+    transparent
+  );
   bottom: 0;
   content: "";
   height: 3px;
@@ -922,7 +943,11 @@ h1 span:last-child {
 .worker-detail {
   background:
     linear-gradient(180deg, rgba(255, 255, 253, 0.98), rgba(255, 249, 241, 0.94)),
-    linear-gradient(145deg, color-mix(in srgb, var(--accent-color, var(--orange)) 7%, transparent), transparent 48%),
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--accent-color, var(--orange)) 7%, transparent),
+      transparent 48%
+    ),
     var(--surface-card);
   min-height: 540px;
   padding: 28px;
