@@ -5,6 +5,38 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap");
 
+@font-face {
+  font-family: "Berkeley Mono";
+  src: url("/fonts/BerkeleyMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berkeley Mono";
+  src: url("/fonts/BerkeleyMono-Oblique.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berkeley Mono";
+  src: url("/fonts/BerkeleyMono-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berkeley Mono";
+  src: url("/fonts/BerkeleyMono-Bold-Oblique.woff2") format("woff2");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
 :root {
   /* Colors */
   color-scheme: dark;
@@ -29,8 +61,8 @@
 
   /* Typography Families */
   --font-mono:
-    "Berkeley Mono Trial", "Maple Mono", "Fira Code", "Microsoft YaHei", "PingFang SC",
-    ui-monospace, monospace;
+    "Berkeley Mono", "Berkeley Mono Trial", "Maple Mono", "Fira Code", "Microsoft YaHei",
+    "PingFang SC", ui-monospace, monospace;
   --font-sans: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
   --font-code: "Maple Mono", "Fira Code", "Microsoft YaHei", "PingFang SC", monospace;
 
