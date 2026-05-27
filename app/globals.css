@@ -82,6 +82,7 @@ html {
   scroll-padding-top: 80px;
   background-color: var(--bg);
   color: var(--fg);
+  overflow-x: clip;
 }
 
 body {
@@ -92,6 +93,7 @@ body {
   color: var(--fg);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
 }
 
 /* ==========================================
@@ -151,6 +153,9 @@ body {
   color: var(--fg-dim);
   border-right: 1px solid var(--border);
   transition: var(--transition-fast);
+  min-width: 0;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .btn-tab:last-child {
@@ -190,9 +195,14 @@ body {
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
   transition: var(--transition-normal);
   position: relative;
   width: 100%;
+  min-width: 0;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .btn-card::after {
@@ -388,6 +398,7 @@ button {
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--fg);
+  min-width: 0;
 }
 
 .brand-mark {
@@ -411,6 +422,7 @@ button {
 .nav-links {
   display: flex;
   gap: 32px;
+  min-width: 0;
 }
 
 .nav-item {
@@ -419,6 +431,7 @@ button {
   color: var(--fg-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  min-width: 0;
 }
 
 .nav-item:hover {
@@ -477,6 +490,12 @@ button {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
+  min-width: 0;
+}
+
+.hero-copy-panel,
+.hero-terminal-panel {
+  min-width: 0;
 }
 
 .hero-main-title {
@@ -535,9 +554,13 @@ button {
 .hero-actions-row {
   display: flex;
   gap: 20px;
+  flex-wrap: wrap;
 }
 
 .primary-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: var(--orange);
   color: #000;
   font-weight: bold;
@@ -547,6 +570,8 @@ button {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   box-shadow: 0 4px 20px rgba(255, 94, 0, 0.3);
+  min-width: 0;
+  text-align: center;
 }
 
 .primary-action-btn:hover {
@@ -555,6 +580,9 @@ button {
 }
 
 .secondary-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--border-glow);
   color: var(--fg);
   font-weight: bold;
@@ -563,6 +591,8 @@ button {
   border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  min-width: 0;
+  text-align: center;
 }
 
 .secondary-action-btn:hover {
@@ -594,6 +624,8 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
   margin-bottom: var(--space-sm);
 }
 
@@ -602,6 +634,8 @@ button {
   font-weight: var(--weight-bold);
   color: var(--orange);
   letter-spacing: 1.2px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .skill-version-tag {
@@ -612,6 +646,7 @@ button {
   background: rgba(0, 255, 102, 0.03);
   padding: 2px 6px;
   border-radius: var(--radius-xs);
+  flex: 0 0 auto;
 }
 
 .skill-download-text {
@@ -636,6 +671,7 @@ button {
 .skill-action-btn-link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-sm);
   background: rgba(255, 94, 0, 0.1);
   border: 1px solid rgba(255, 94, 0, 0.3);
@@ -647,6 +683,8 @@ button {
   transition: var(--transition-fast);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  max-width: 100%;
+  text-align: center;
 }
 
 .skill-action-btn-link:hover {
@@ -664,6 +702,8 @@ button {
 .skill-meta-specs {
   display: flex;
   gap: var(--space-lg);
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .skill-meta-specs span {
@@ -706,38 +746,13 @@ button {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  min-width: 0;
 }
 
 .cli-steps-tabs {
   display: flex;
   border-bottom: 1px solid var(--border);
   background: var(--bg-darker);
-}
-
-.cli-tab-btn {
-  flex: 1;
-  padding: 12px 6px;
-  font-size: 11px;
-  font-weight: 700;
-  text-align: center;
-  color: var(--fg-dim);
-  border-right: 1px solid var(--border);
-  transition: all 0.2s ease;
-}
-
-.cli-tab-btn:last-child {
-  border-right: none;
-}
-
-.cli-tab-btn.active {
-  color: var(--orange);
-  background: var(--panel-bg);
-  box-shadow: inset 0 -2px 0 var(--orange);
-}
-
-.cli-tab-btn:hover:not(.active) {
-  color: var(--fg-muted);
-  background: rgba(255, 255, 255, 0.02);
 }
 
 .cli-layout {
@@ -784,6 +799,7 @@ button {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
 }
 
 .cli-prompt-symbol {
@@ -793,6 +809,7 @@ button {
 
 .cli-command-text {
   flex: 1;
+  min-width: 0;
   font-size: 13px;
   color: var(--fg);
   font-family: var(--font-code);
@@ -881,6 +898,7 @@ button {
 .terminal-line {
   display: flex;
   gap: 8px;
+  min-width: 0;
 }
 
 .prompt {
@@ -891,11 +909,14 @@ button {
 
 .typing-text {
   color: var(--fg);
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .terminal-output {
   color: var(--fg-muted);
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
   margin: 8px 0;
 }
 
@@ -931,6 +952,7 @@ button {
   align-items: center;
   max-width: 1400px;
   margin: 0 auto 60px;
+  min-width: 0;
 }
 
 .arch-main-title {
@@ -948,6 +970,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-width: 0;
 }
 
 .arch-select-btn {
@@ -977,6 +1000,7 @@ button {
   gap: 40px;
   max-width: 1400px;
   margin: 0 auto;
+  min-width: 0;
 }
 
 .arch-visual-card {
@@ -984,6 +1008,7 @@ button {
   border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
+  min-width: 0;
 }
 
 .panel-chrome {
@@ -1045,6 +1070,7 @@ button {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .arch-explain-body {
@@ -1111,6 +1137,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 0 12px;
 }
 
@@ -1123,6 +1150,10 @@ button {
 .code-filename {
   font-size: 10px;
   color: var(--fg-dim);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .code-content {
@@ -1194,12 +1225,14 @@ button {
   gap: 40px;
   max-width: 1400px;
   margin: 0 auto;
+  min-width: 0;
 }
 
 .market-grid-list {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-width: 0;
 }
 
 .market-card-btn {
@@ -1261,8 +1294,10 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   margin-bottom: 12px;
   width: 100%;
+  min-width: 0;
 }
 
 .market-card-kicker {
@@ -1271,6 +1306,8 @@ button {
   color: var(--fg-dim);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .status-pill {
@@ -1278,6 +1315,7 @@ button {
   font-weight: bold;
   padding: 2px 6px;
   border-radius: 2px;
+  flex: 0 0 auto;
 }
 
 .status-pill.accent-orange {
@@ -1300,12 +1338,16 @@ button {
   font-weight: bold;
   color: var(--fg);
   margin-bottom: 8px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .market-card-summary {
   font-size: 13px;
   color: var(--fg-muted);
   line-height: 1.5;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 /* Detail panel on the right of the Marketplace */
@@ -1317,6 +1359,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  min-width: 0;
 }
 
 .market-detail-aside.accent-orange {
@@ -1333,8 +1376,10 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   border-bottom: 1px dashed var(--border);
   padding-bottom: 16px;
+  min-width: 0;
 }
 
 .detail-status-badge {
@@ -1348,6 +1393,8 @@ button {
   font-weight: bold;
   color: var(--fg-dim);
   text-transform: uppercase;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .detail-hero-title {
@@ -1368,6 +1415,7 @@ button {
   border: 1px solid var(--border);
   border-radius: 4px;
   overflow: hidden;
+  min-width: 0;
 }
 
 .box-tab {
@@ -1387,6 +1435,7 @@ button {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
 }
 
 .box-prompt {
@@ -1400,6 +1449,7 @@ button {
   font-size: 12px;
   color: var(--fg);
   flex: 1;
+  min-width: 0;
   overflow-x: auto;
   white-space: nowrap;
 }
@@ -1524,14 +1574,67 @@ button {
   .topbar {
     padding: 0 16px;
   }
+  .brand {
+    gap: 8px;
+  }
+  .brand-text {
+    font-size: 14px;
+    line-height: 1.15;
+  }
   .nav-links {
-    gap: 16px;
+    gap: 12px;
   }
   .nav-item {
     font-size: 10px;
+    line-height: 1.2;
+    letter-spacing: 0.25px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
   }
   .hero-section {
     padding: 100px 16px 60px;
+  }
+  .hero-grid-layout {
+    gap: 36px;
+  }
+  .hero-main-title {
+    font-size: clamp(32px, 9.5vw, 38px);
+    line-height: 1.12;
+  }
+  .hero-slogan {
+    margin-bottom: 32px;
+  }
+  .hero-commercial-values {
+    gap: 18px;
+    margin-bottom: 36px;
+  }
+  .value-item {
+    gap: 12px;
+  }
+  .hero-actions-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+    gap: 12px;
+  }
+  .primary-action-btn,
+  .secondary-action-btn {
+    padding: 12px 16px;
+  }
+  .skill-download-box {
+    padding: 16px;
+  }
+  .skill-action-row {
+    gap: 12px;
+  }
+  .skill-meta-specs {
+    gap: 8px 16px;
+  }
+  .terminal-onboarding-caption {
+    align-items: flex-start;
+    line-height: 1.4;
   }
   .cli-layout {
     padding: 16px;
@@ -1539,9 +1642,109 @@ button {
   .cli-steps-tabs {
     flex-wrap: wrap;
   }
-  .cli-tab-btn {
+  .cli-steps-tabs .btn-tab {
     flex: none;
     width: 50%;
+  }
+  .cli-steps-tabs .btn-tab:nth-child(2n) {
+    border-right: none;
+  }
+  .cli-steps-tabs .btn-tab:nth-child(n + 3) {
+    border-top: 1px solid var(--border);
+  }
+  .cli-command-block {
+    align-items: flex-start;
+  }
+  .cli-command-text {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .terminal-header {
+    gap: 8px;
+  }
+  .terminal-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .terminal-body {
+    height: auto;
+    max-height: 260px;
+    font-size: 11px;
+  }
+  .arch-section {
+    padding: 80px 16px;
+  }
+  .arch-heading-layout {
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+  .arch-selectors {
+    gap: 10px;
+  }
+  .arch-select-btn {
+    padding: 12px 14px;
+  }
+  .svg-wrapper {
+    padding: 16px;
+  }
+  .arch-explain-body {
+    padding: 24px 20px;
+    gap: 24px;
+  }
+  .code-content {
+    padding: 14px;
+    font-size: 10px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .code-content code {
+    white-space: inherit;
+    overflow-wrap: anywhere;
+  }
+  .marketplace-section {
+    padding: 80px 16px;
+  }
+  .marketplace-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+  .market-count-tag {
+    align-items: flex-start;
+    align-self: flex-start;
+    text-align: left;
+  }
+  .market-layout {
+    gap: 32px;
+  }
+  .btn-card {
+    padding: 20px;
+  }
+  .market-card-kicker-row {
+    flex-wrap: wrap;
+  }
+  .market-card-title {
+    font-size: 18px;
+    line-height: 1.35;
+  }
+  .market-card-summary {
+    line-height: 1.65;
+  }
+  .market-detail-aside {
+    padding: 24px 20px;
+  }
+  .detail-status-row {
+    flex-wrap: wrap;
+  }
+  .box-code-row {
+    align-items: flex-start;
+  }
+  .box-command {
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
   .outcome-box-row {
     grid-template-columns: 1fr;
@@ -1551,5 +1754,22 @@ button {
     gap: 12px;
     align-items: center;
     text-align: center;
+  }
+}
+
+@media (max-width: 380px) {
+  .topbar {
+    padding: 0 12px;
+  }
+  .brand-text {
+    display: none;
+  }
+  .nav-links {
+    flex: 1;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .nav-item {
+    font-size: 9px;
   }
 }
