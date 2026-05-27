@@ -104,7 +104,7 @@ export function ArchitectureSection() {
 
       <div className="arch-grid">
         {/* Animated Interactive SVG Diagram */}
-        <Card title="SYSTEM_DATAFLOW_VISUALIZER.svg" dot={true}>
+        <Card title="SYSTEM_DATAFLOW_VISUALIZER" dot={true}>
           <div className="svg-wrapper">
             <svg
               viewBox="0 0 800 480"
