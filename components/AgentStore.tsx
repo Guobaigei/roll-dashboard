@@ -5,10 +5,21 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { useClipboardFeedback } from "@/components/useClipboardFeedback";
 import type { Agent } from "@/data/agents";
+import versions from "../public/roll-versions.json";
 
 type AgentStoreProps = {
   agents: Agent[];
 };
+
+const AGENT_VERSION_BY_ID = {
+  "browser-use-agent": versions.browserUse,
+  "smart-reply-agent": versions.smartReply,
+} as const;
+
+function getAgentVersionLabel(agentId: string) {
+  const version = AGENT_VERSION_BY_ID[agentId as keyof typeof AGENT_VERSION_BY_ID];
+  return version ? `v${version}` : null;
+}
 
 export function AgentStore({ agents }: AgentStoreProps) {
   const [selectedAgentId, setSelectedAgentId] = useState(agents[0]?.id ?? "");
@@ -46,22 +57,31 @@ export function AgentStore({ agents }: AgentStoreProps) {
       <div className="market-layout">
         {/* Left Grid Selection */}
         <section className="market-grid-list" aria-label="AI 助手列表">
-          {agents.map((agent) => (
-            <Button
-              variant="card"
-              accent={agent.accent}
-              active={activeAgent?.id === agent.id}
-              key={agent.id}
-              onClick={() => setSelectedAgentId(agent.id)}
-            >
-              <div className="market-card-kicker-row">
-                <span className="market-card-kicker">{agent.category}</span>
-                <span className={`status-pill accent-${agent.accent}`}>ACTIVE</span>
-              </div>
-              <strong className="market-card-title">{agent.roleName}</strong>
-              <span className="market-card-summary">{agent.plainSummary}</span>
-            </Button>
-          ))}
+          {agents.map((agent) => {
+            const versionLabel = getAgentVersionLabel(agent.id);
+
+            return (
+              <Button
+                variant="card"
+                accent={agent.accent}
+                active={activeAgent?.id === agent.id}
+                key={agent.id}
+                onClick={() => setSelectedAgentId(agent.id)}
+              >
+                <div className="market-card-kicker-row">
+                  <span className="market-card-kicker">{agent.category}</span>
+                  <span className="market-card-status-row">
+                    <span className={`status-pill accent-${agent.accent}`}>ACTIVE</span>
+                    {versionLabel ? (
+                      <span className={`version-pill accent-${agent.accent}`}>{versionLabel}</span>
+                    ) : null}
+                  </span>
+                </div>
+                <strong className="market-card-title">{agent.roleName}</strong>
+                <span className="market-card-summary">{agent.plainSummary}</span>
+              </Button>
+            );
+          })}
         </section>
 
         {/* Right Active Detail Panel */}
