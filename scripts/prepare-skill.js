@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -187,8 +188,56 @@ async function resolveLatestVersions() {
 
 async function writeVersionManifest() {
   const versions = await resolveLatestVersions();
-  fs.writeFileSync(versionFileDest, `${JSON.stringify(versions, null, 2)}\n`, "utf8");
-  console.log("[roll-dashboard] 成功导出静态版本号映射:", versions);
+  const manifest = {
+    ...versions,
+    skillArchive: readSkillArchiveMetadata(),
+  };
+
+  fs.writeFileSync(versionFileDest, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  console.log("[roll-dashboard] 成功导出静态版本号与 Skill 产物元数据:", manifest);
+}
+
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes) || bytes < 0) {
+    return "UNAVAILABLE";
+  }
+
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(2)} KB`;
+  }
+
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+}
+
+function readSkillArchiveMetadata() {
+  const fileName = path.basename(zipDest);
+
+  if (!fs.existsSync(zipDest)) {
+    console.warn("[roll-dashboard] Skill 模板包不存在，无法计算 SHA-256:", zipDest);
+    return {
+      fileName,
+      sizeBytes: null,
+      sizeLabel: "UNAVAILABLE",
+      sha256: null,
+      sha256Short: "UNAVAILABLE",
+    };
+  }
+
+  const archiveBuffer = fs.readFileSync(zipDest);
+  const sha256 = createHash("sha256").update(archiveBuffer).digest("hex");
+  const sizeBytes = archiveBuffer.byteLength;
+
+  return {
+    fileName,
+    sizeBytes,
+    sizeLabel: formatBytes(sizeBytes),
+    sha256,
+    sha256Short: `${sha256.slice(0, 12)}...${sha256.slice(-8)}`,
+  };
 }
 
 async function runPackager() {
@@ -225,8 +274,8 @@ async function runPackager() {
 }
 
 async function main() {
-  await writeVersionManifest();
   await runPackager();
+  await writeVersionManifest();
 }
 
 main().catch((err) => {
