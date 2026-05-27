@@ -1,0 +1,32 @@
+x-roll-website-common: &roll-website-common
+  restart: always
+  environment:
+    - NODE_ENV=production
+    - NEXT_TELEMETRY_DISABLED=1
+    - PORT=3000
+    - HOSTNAME=0.0.0.0
+  healthcheck:
+    test:
+      [
+        "CMD",
+        "node",
+        "-e",
+        "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+      ]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+    start_period: 10s
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  app:
+    <<: *roll-website-common
+    image: roll-website:latest
+    container_name: roll-website
+    ports:
+      - "3004:3000"
