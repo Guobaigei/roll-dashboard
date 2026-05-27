@@ -1310,6 +1310,15 @@ button {
   overflow-wrap: anywhere;
 }
 
+.market-card-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+}
+
 .status-pill {
   font-size: 8px;
   font-weight: bold;
@@ -1331,6 +1340,31 @@ button {
 .status-pill.accent-green {
   color: var(--green);
   border: 1px solid rgba(0, 255, 102, 0.2);
+}
+
+.version-pill {
+  font-size: 8px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--fg-dim);
+  border: 1px solid var(--border);
+}
+
+.version-pill.accent-orange {
+  color: var(--orange);
+  border-color: rgba(255, 94, 0, 0.2);
+}
+
+.version-pill.accent-blue {
+  color: var(--blue);
+  border-color: rgba(0, 210, 255, 0.2);
+}
+
+.version-pill.accent-green {
+  color: var(--green);
+  border-color: rgba(0, 255, 102, 0.2);
 }
 
 .market-card-title {

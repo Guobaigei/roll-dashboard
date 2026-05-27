@@ -1,8 +1,22 @@
 import versions from "../public/roll-versions.json";
 import { InteractiveCLI } from "./InteractiveCLI";
 
+type SkillArchiveMetadata = {
+  sha256?: string | null;
+  sha256Short?: string | null;
+  sizeLabel?: string | null;
+};
+
+type RollVersionManifest = typeof versions & {
+  skillArchive?: SkillArchiveMetadata;
+};
+
 export function HeroSection() {
-  const stableVersion = `STABLE_V${versions.core}`;
+  const manifest = versions as RollVersionManifest;
+  const stableVersion = `STABLE_V${manifest.core}`;
+  const skillArchive = manifest.skillArchive;
+  const skillSizeLabel = skillArchive?.sizeLabel ?? "UNAVAILABLE";
+  const skillSha256Label = skillArchive?.sha256Short ?? "UNAVAILABLE";
 
   return (
     <section className="hero-section" id="top" aria-labelledby="hero-title">
@@ -72,8 +86,10 @@ export function HeroSection() {
                 <span className="btn-text">PULL LATEST SKILL (.ZIP)</span>
               </a>
               <div className="skill-meta-specs">
-                <span>SIZE: ~21 KB</span>
-                <span>SHA-256: VERIFIED</span>
+                <span>SIZE: {skillSizeLabel}</span>
+                <span title={skillArchive?.sha256 ? `SHA-256: ${skillArchive.sha256}` : undefined}>
+                  SHA-256: {skillSha256Label}
+                </span>
               </div>
             </div>
           </div>
