@@ -1,12 +1,12 @@
 {
   "core": "0.9.0",
-  "browserUse": "0.15.0",
+  "browserUse": "0.16.0",
   "smartReply": "1.2.5",
   "skillArchive": {
     "fileName": "openclaw-roll-core-skill-latest.zip",
-    "sizeBytes": 21183,
-    "sizeLabel": "20.69 KB",
-    "sha256": "886221ee9f97cf864d5d648c51491961933fb384f8bb3781fe8c6c90d38e9e85",
-    "sha256Short": "886221ee9f97...d38e9e85"
+    "sizeBytes": 22128,
+    "sizeLabel": "21.61 KB",
+    "sha256": "fe50fb6a8b34fb2643c0fa096ca9ee2a87a791b8919f41b3170fbf0f58e13c4f",
+    "sha256Short": "fe50fb6a8b34...58e13c4f"
   }
 }
