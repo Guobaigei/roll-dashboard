@@ -19,14 +19,14 @@ jobs:
       contents: read
 
     env:
-      DEPLOY_CONFIG_FILE: ${{ runner.temp }}/deploy.env.local
+      DEPLOY_CONFIG_FILE: /tmp/roll-dashboard-deploy.env.local
       DEPLOY_SERVER_USER: ${{ secrets.DEPLOY_SERVER_USER }}
       DEPLOY_SERVER_HOST: ${{ secrets.DEPLOY_SERVER_HOST }}
       DEPLOY_SERVER_PORT: ${{ secrets.DEPLOY_SERVER_PORT }}
       DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
       DEPLOY_SSH_KNOWN_HOSTS: ${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}
       ROLL_WEBSITE_REMOTE_DIR: ${{ secrets.ROLL_WEBSITE_REMOTE_DIR }}
-      ROLL_WEBSITE_OUTPUT_DIR: ${{ runner.temp }}/roll-website-images
+      ROLL_WEBSITE_OUTPUT_DIR: /tmp/roll-website-images
 
     steps:
       - name: Checkout
@@ -42,7 +42,11 @@ jobs:
           corepack enable
           pnpm --version
 
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Configure deployment environment
+        if: github.ref == 'refs/heads/main'
         run: |
           : "${DEPLOY_SERVER_USER:?Missing DEPLOY_SERVER_USER secret}"
           : "${DEPLOY_SERVER_HOST:?Missing DEPLOY_SERVER_HOST secret}"
@@ -77,4 +81,5 @@ jobs:
           EOF
 
       - name: Deploy
+        if: github.ref == 'refs/heads/main'
         run: pnpm deploy:server
