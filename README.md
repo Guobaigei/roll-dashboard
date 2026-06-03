@@ -71,6 +71,51 @@ services:
 
 ## 发布流程
 
+一键构建、上传并部署到服务器：
+
+```bash
+pnpm deploy:server
+```
+
+`pnpm deploy:server` 会按顺序执行：
+
+1. `release.sh`：构建 Docker 镜像、导出压缩包并上传到服务器。
+2. `deploy.sh`：在服务器加载最新镜像并重启 `docker compose` 服务。
+
+也可以单独执行两个阶段。
+
+## CI/CD 自动部署
+
+`.github/workflows/deploy.yml` 会在 `main` 分支收到新提交时自动执行部署。也就是说，PR merge 到
+`main` 后会触发：
+
+```text
+push main
+  -> GitHub Actions
+  -> pnpm deploy:server
+  -> release.sh
+  -> deploy.sh
+```
+
+GitHub Actions 需要配置以下 Repository Secrets：
+
+```bash
+DEPLOY_SERVER_USER=haimian-deploy
+DEPLOY_SERVER_HOST=8.136.14.2
+DEPLOY_SERVER_PORT=63452
+DEPLOY_SSH_PRIVATE_KEY=<用于登录服务器的 SSH 私钥>
+DEPLOY_SSH_KNOWN_HOSTS=<服务器 SSH host key>
+ROLL_WEBSITE_REMOTE_DIR=/data/roll-website
+```
+
+`DEPLOY_SSH_KNOWN_HOSTS` 可以在可信网络下通过以下命令生成：
+
+```bash
+ssh-keyscan -p 63452 8.136.14.2
+```
+
+自动部署和本地部署复用同一个入口：`pnpm deploy:server`。
+
 本地构建镜像并上传到服务器：
 
 ```bash

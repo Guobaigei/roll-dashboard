@@ -1,0 +1,80 @@
+name: Deploy to server
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: roll-website-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+
+    env:
+      DEPLOY_CONFIG_FILE: ${{ runner.temp }}/deploy.env.local
+      DEPLOY_SERVER_USER: ${{ secrets.DEPLOY_SERVER_USER }}
+      DEPLOY_SERVER_HOST: ${{ secrets.DEPLOY_SERVER_HOST }}
+      DEPLOY_SERVER_PORT: ${{ secrets.DEPLOY_SERVER_PORT }}
+      DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+      DEPLOY_SSH_KNOWN_HOSTS: ${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}
+      ROLL_WEBSITE_REMOTE_DIR: ${{ secrets.ROLL_WEBSITE_REMOTE_DIR }}
+      ROLL_WEBSITE_OUTPUT_DIR: ${{ runner.temp }}/roll-website-images
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Enable pnpm
+        run: |
+          corepack enable
+          pnpm --version
+
+      - name: Configure deployment environment
+        run: |
+          : "${DEPLOY_SERVER_USER:?Missing DEPLOY_SERVER_USER secret}"
+          : "${DEPLOY_SERVER_HOST:?Missing DEPLOY_SERVER_HOST secret}"
+          : "${DEPLOY_SERVER_PORT:?Missing DEPLOY_SERVER_PORT secret}"
+          : "${DEPLOY_SSH_PRIVATE_KEY:?Missing DEPLOY_SSH_PRIVATE_KEY secret}"
+          : "${DEPLOY_SSH_KNOWN_HOSTS:?Missing DEPLOY_SSH_KNOWN_HOSTS secret}"
+          : "${ROLL_WEBSITE_REMOTE_DIR:?Missing ROLL_WEBSITE_REMOTE_DIR secret}"
+
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$DEPLOY_SSH_PRIVATE_KEY" >"$HOME/.ssh/id_deploy"
+          chmod 600 "$HOME/.ssh/id_deploy"
+          printf '%s\n' "$DEPLOY_SSH_KNOWN_HOSTS" >"$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+          cat >"$HOME/.ssh/config" <<EOF
+          Host ${DEPLOY_SERVER_HOST}
+            HostName ${DEPLOY_SERVER_HOST}
+            User ${DEPLOY_SERVER_USER}
+            Port ${DEPLOY_SERVER_PORT}
+            IdentityFile ${HOME}/.ssh/id_deploy
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+          EOF
+          chmod 600 "$HOME/.ssh/config"
+
+          cat >"$DEPLOY_CONFIG_FILE" <<EOF
+          DEPLOY_SERVER_USER=${DEPLOY_SERVER_USER}
+          DEPLOY_SERVER_HOST=${DEPLOY_SERVER_HOST}
+          DEPLOY_SERVER_PORT=${DEPLOY_SERVER_PORT}
+          ROLL_WEBSITE_REMOTE_DIR=${ROLL_WEBSITE_REMOTE_DIR}
+          ROLL_WEBSITE_OUTPUT_DIR=${ROLL_WEBSITE_OUTPUT_DIR}
+          EOF
+
+      - name: Deploy
+        run: pnpm deploy:server
