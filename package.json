@@ -10,6 +10,7 @@
     "prebuild": "node scripts/prepare-skill.js",
     "build": "next build",
     "start": "next start",
+    "deploy:server": "bash ./deploy-server.sh",
     "lint": "biome check",
     "lint:fix": "biome check --write",
     "format": "biome format --write",
