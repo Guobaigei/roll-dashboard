@@ -7,7 +7,6 @@ set -euo pipefail
 
 IMAGE_NAME="roll-website"
 DEFAULT_CONFIG_FILE="./deploy.env.local"
-FALLBACK_CONFIG_FILE="/Users/gt/yc/HM2.0/deploy.env.local"
 CONFIG_FILE="${DEPLOY_CONFIG_FILE:-$DEFAULT_CONFIG_FILE}"
 
 usage() {
@@ -15,7 +14,7 @@ usage() {
   echo ""
   echo "Environment overrides:"
   echo "  DEPLOY_CONFIG_FILE=/path/to/deploy.env.local"
-  echo "  ROLL_WEBSITE_REMOTE_DIR=/data/roll-website"
+  echo "  ROLL_WEBSITE_REMOTE_DIR=/path/on/server"
   echo "  ROLL_WEBSITE_OUTPUT_DIR=./docker-images"
 }
 
@@ -30,12 +29,6 @@ if [ -f "$CONFIG_FILE" ]; then
   # shellcheck disable=SC1090
   . "$CONFIG_FILE"
   set +a
-elif [ -z "${DEPLOY_CONFIG_FILE:-}" ] && [ -f "$FALLBACK_CONFIG_FILE" ]; then
-  CONFIG_FILE="$FALLBACK_CONFIG_FILE"
-  set -a
-  # shellcheck disable=SC1090
-  . "$CONFIG_FILE"
-  set +a
 else
   echo "Error: deploy config file not found: $CONFIG_FILE"
   echo "Set DEPLOY_CONFIG_FILE to use another config file."
@@ -45,7 +38,7 @@ fi
 SERVER_USER="${DEPLOY_SERVER_USER:-}"
 SERVER_HOST="${DEPLOY_SERVER_HOST:-}"
 SERVER_PORT="${DEPLOY_SERVER_PORT:-}"
-REMOTE_DIR="${ROLL_WEBSITE_REMOTE_DIR:-${DEPLOY_REMOTE_DIR:-/data/roll-website}}"
+REMOTE_DIR="${ROLL_WEBSITE_REMOTE_DIR:-${DEPLOY_REMOTE_DIR:-}}"
 OUTPUT_DIR="${ROLL_WEBSITE_OUTPUT_DIR:-${DEPLOY_OUTPUT_DIR:-./docker-images}}"
 
 require_command() {
@@ -63,6 +56,7 @@ require_config() {
   [ -n "$SERVER_USER" ] || missing+=("DEPLOY_SERVER_USER")
   [ -n "$SERVER_HOST" ] || missing+=("DEPLOY_SERVER_HOST")
   [ -n "$SERVER_PORT" ] || missing+=("DEPLOY_SERVER_PORT")
+  [ -n "$REMOTE_DIR" ] || missing+=("ROLL_WEBSITE_REMOTE_DIR")
 
   if [ "${#missing[@]}" -gt 0 ]; then
     echo "Error: missing deploy config: ${missing[*]}"

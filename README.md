@@ -19,21 +19,21 @@ pnpm check
 `deploy.env.local`，该文件已被 `.gitignore` 忽略。
 
 ```bash
-DEPLOY_SERVER_USER=haimian-deploy
-DEPLOY_SERVER_HOST=8.136.14.2
-DEPLOY_SERVER_PORT=63452
-DEPLOY_REMOTE_DIR=/data/roll-website
+DEPLOY_SERVER_USER=<deploy-user>
+DEPLOY_SERVER_HOST=<server-host-or-ip>
+DEPLOY_SERVER_PORT=<ssh-port>
+DEPLOY_REMOTE_DIR=<remote-app-dir>
 DEPLOY_OUTPUT_DIR=./docker-images
-ROLL_WEBSITE_REMOTE_DIR=/data/roll-website
+ROLL_WEBSITE_REMOTE_DIR=<remote-app-dir>
 ROLL_WEBSITE_OUTPUT_DIR=./docker-images
 ```
 
-`release.sh` 和 `deploy.sh` 默认优先读取当前目录的 `deploy.env.local`；如果不存在，会回退读取
-`/Users/gt/yc/HM2.0/deploy.env.local`。
+`release.sh` 和 `deploy.sh` 默认读取当前目录的 `deploy.env.local`。也可以通过
+`DEPLOY_CONFIG_FILE=/path/to/deploy.env.local` 指定其他配置文件。
 
 ## 服务器 Compose 配置
 
-服务器目录为 `/data/roll-website`。该目录需要存在 `docker-compose.yaml`：
+服务器部署目录需要存在 `docker-compose.yaml`：
 
 ```yaml
 services:
@@ -47,7 +47,7 @@ services:
       - PORT=3000
       - HOSTNAME=0.0.0.0
     ports:
-      - "3004:3000"
+      - "<public-port>:3000"
     healthcheck:
       test:
         [
@@ -100,18 +100,18 @@ push main
 GitHub Actions 需要配置以下 Repository Secrets：
 
 ```bash
-DEPLOY_SERVER_USER=haimian-deploy
-DEPLOY_SERVER_HOST=8.136.14.2
-DEPLOY_SERVER_PORT=63452
+DEPLOY_SERVER_USER=<deploy-user>
+DEPLOY_SERVER_HOST=<server-host-or-ip>
+DEPLOY_SERVER_PORT=<ssh-port>
 DEPLOY_SSH_PRIVATE_KEY=<用于登录服务器的 SSH 私钥>
 DEPLOY_SSH_KNOWN_HOSTS=<服务器 SSH host key>
-ROLL_WEBSITE_REMOTE_DIR=/data/roll-website
+ROLL_WEBSITE_REMOTE_DIR=<remote-app-dir>
 ```
 
 `DEPLOY_SSH_KNOWN_HOSTS` 可以在可信网络下通过以下命令生成：
 
 ```bash
-ssh-keyscan -p 63452 8.136.14.2
+ssh-keyscan -p <ssh-port> <server-host-or-ip>
 ```
 
 自动部署和本地部署复用同一个入口：`pnpm deploy:server`。
@@ -119,7 +119,7 @@ ssh-keyscan -p 63452 8.136.14.2
 本地构建镜像并上传到服务器：
 
 ```bash
-cd /Users/gt/baigei/dashboard
+cd /path/to/roll-dashboard
 ./release.sh
 ```
 
@@ -128,19 +128,19 @@ cd /Users/gt/baigei/dashboard
 - 构建 `roll-website:YYYYMMDDHHMMSS` 和 `roll-website:latest`
 - 导出 `./docker-images/roll-website-YYYYMMDDHHMMSS.tar.gz`
 - 生成本地 `.md5`
-- 上传镜像包到 `/data/roll-website`
+- 上传镜像包到 `ROLL_WEBSITE_REMOTE_DIR`
 
 部署服务器上最新上传的镜像：
 
 ```bash
-cd /Users/gt/baigei/dashboard
+cd /path/to/roll-dashboard
 ./deploy.sh
 ```
 
 `deploy.sh` 会通过 SSH 在服务器执行：
 
 ```bash
-cd /data/roll-website
+cd "$ROLL_WEBSITE_REMOTE_DIR"
 IMAGE_FILE=$(ls roll-website-*.tar.gz | sort | tail -n 1)
 gunzip -c "$IMAGE_FILE" | docker load
 docker compose -f docker-compose.yaml up -d --force-recreate
@@ -150,5 +150,5 @@ docker compose -f docker-compose.yaml ps
 访问地址：
 
 ```text
-http://服务器IP:3004
+http://<server-host-or-domain>:<public-port>
 ```
