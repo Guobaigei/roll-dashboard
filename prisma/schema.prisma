@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model OperatorUser {
+  id           String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  phone        String                    @unique
+  passwordHash String                    @map("password_hash")
+  bossPlatform String                    @default("zhipin") @map("boss_platform")
+  bossUsername String                    @map("boss_username")
+  createdAt    DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  clientTokens OperatorUserClientToken[]
+
+  @@unique([bossPlatform, bossUsername], map: "operator_users_boss_username_unique")
+  @@map("operator_users")
+}
+
+model OperatorUserClientToken {
+  id                     String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId                 String       @map("user_id") @db.Uuid
+  clientTokenCiphertext  String       @map("client_token_ciphertext")
+  clientTokenFingerprint String       @map("client_token_fingerprint")
+  clientTokenLabel       String?      @map("client_token_label")
+  createdAt              DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user                   OperatorUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, clientTokenFingerprint], map: "operator_user_tokens_user_client_token_fingerprint_unique")
+  @@index([userId], map: "operator_user_tokens_user_id_idx")
+  @@map("operator_user_tokens")
+}

@@ -19,7 +19,9 @@ COPY . .
 # 注意：由于 /Users/rensiwen/... 的本地路径在 Docker 构建时肯定不存在，
 # prepare-skill.js 会尝试从 npm registry 同步展示版本号；失败时回退到 public 中暂存的
 # roll-versions.json。Skill zip 始终复用 public 中已提交的静态文件。
-RUN npm run build
+RUN DATABASE_URL="postgresql://user:pass@localhost:5432/roll" \
+  DIRECT_URL="postgresql://user:pass@localhost:5432/roll" \
+  pnpm db:generate && pnpm build
 
 # Production image, copy all the files and run next
 FROM base AS runner

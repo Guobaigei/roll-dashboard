@@ -28,5 +28,7 @@ services:
     <<: *roll-website-common
     image: roll-website:latest
     container_name: roll-website
+    env_file:
+      - .env.local
     ports:
       - "3004:3000"
