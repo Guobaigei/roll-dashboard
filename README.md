@@ -1,16 +1,49 @@
-# Roll Site
+# Roll Dashboard
 
-Roll 官网页面，使用 Next.js App Router 和静态 AI 助手展示数据。
+Roll 官网与运营后台单体项目，使用 Next.js App Router。首页公开展示 Roll Agent
+能力，登录/注册后进入 `/operator` 后台入口。
+
+当前后台能力：
+
+- 自建手机号/密码登录注册
+- 多客户端令牌加密保存
+- 按客户端令牌授权范围和 Boss 用户名绑定过滤租户
+- 查看并编辑租户安全配置字段：显示名、Boss 绑定、品牌别名、城市、默认品牌
 
 ## 本地开发
 
 ```bash
 pnpm install
+pnpm db:generate
 pnpm dev
 pnpm build
 pnpm lint
 pnpm typecheck
 pnpm check
+```
+
+## 环境变量
+
+复制 `.env.example` 为 `.env.local` 后填写：
+
+```bash
+DATABASE_URL=
+DIRECT_URL=
+AUTH_SESSION_SECRET=
+TOKEN_ENCRYPTION_KEY=
+REPLY_AUTHORITY_BASE_URL=
+```
+
+认证使用 `DATABASE_URL`、`DIRECT_URL`、`AUTH_SESSION_SECRET`。客户端令牌与租户配置功能使用
+`TOKEN_ENCRYPTION_KEY` 和 `REPLY_AUTHORITY_BASE_URL`。
+
+数据库通过 Prisma 管理：
+
+```bash
+pnpm db:generate
+pnpm db:migrate
+pnpm db:deploy
+pnpm db:studio
 ```
 
 ## 部署配置
@@ -41,6 +74,8 @@ services:
     image: roll-website:latest
     container_name: roll-website
     restart: always
+    env_file:
+      - .env.local
     environment:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
@@ -67,7 +102,7 @@ services:
         max-file: "3"
 ```
 
-该站点不区分测试/生产环境，不需要 `env_file`，也不需要 `.env.staging` 或 `.env.production`。
+服务器部署目录需要提供 `.env.local`，用于注入数据库连接和 session secret。
 
 ## 发布流程
 

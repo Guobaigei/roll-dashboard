@@ -6,11 +6,15 @@
   "packageManager": "pnpm@10.31.0",
   "scripts": {
     "predev": "node scripts/prepare-skill.js",
-    "dev": "next dev",
+    "dev": "PORT=3100 next dev",
     "prebuild": "node scripts/prepare-skill.js",
     "build": "next build",
     "start": "next start",
     "deploy:server": "bash ./deploy-server.sh",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio",
     "lint": "biome check",
     "lint:fix": "biome check --write",
     "format": "biome format --write",
@@ -18,9 +22,14 @@
     "check": "biome check && tsc --noEmit"
   },
   "dependencies": {
+    "@node-rs/argon2": "^2.0.2",
+    "@prisma/client": "^6.19.3",
+    "jose": "^6.2.3",
+    "lucide-react": "^1.17.0",
     "next": "^16.2.6",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.15",
@@ -29,6 +38,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "archiver": "^8.0.0",
+    "prisma": "^6.19.3",
     "typescript": "^6.0.2"
   }
 }
