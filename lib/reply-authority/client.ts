@@ -4,6 +4,7 @@ import { ConfigError, UpstreamHttpError, UpstreamUnavailableError } from "@/lib/
 import type {
   AuthContext,
   BrandSyncRunSlice,
+  BrandSyncRunsResponse,
   Tenant,
   TenantPatchInput,
   TenantsResponse,
@@ -95,5 +96,12 @@ export function syncClientTenantBrandConfig(clientToken: string, tenantId: strin
     {
       method: "POST",
     },
+  );
+}
+
+export function listClientTenantBrandSyncRuns(clientToken: string, tenantId: string) {
+  return requestReplyAuthority<BrandSyncRunsResponse>(
+    `/tenants/${encodeURIComponent(tenantId)}/brand-sync-runs`,
+    clientToken,
   );
 }

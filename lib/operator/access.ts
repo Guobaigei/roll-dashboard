@@ -11,6 +11,7 @@ import {
 import {
   getAuthContext,
   getClientTenant,
+  listClientTenantBrandSyncRuns,
   listClientTenants,
   patchClientTenant,
   syncClientTenantBrandConfig,
@@ -20,6 +21,7 @@ import { formatClientTokenFingerprint } from "@/lib/security/client-token-vault"
 
 const TENANT_CONFIG_READ_SCOPE = "tenant-config:read";
 const TENANT_CONFIG_WRITE_SCOPE = "tenant-config:write";
+const BRAND_SYNC_READ_SCOPE = "brand-sync:read";
 const BRAND_SYNC_WRITE_SCOPE = "brand-sync:write";
 
 type DecryptedClientToken = Awaited<ReturnType<typeof decryptOperatorUserClientTokens>>[number];
@@ -100,6 +102,7 @@ type TenantTokenCandidate = {
   token: DecryptedClientToken;
   tenant: Tenant;
   canWrite: boolean;
+  canReadBrandSync: boolean;
   canSyncBrand: boolean;
 };
 
@@ -125,6 +128,7 @@ async function findTenantTokenCandidates(
         token: savedClientToken,
         tenant,
         canWrite: hasScope(context, TENANT_CONFIG_WRITE_SCOPE),
+        canReadBrandSync: hasScope(context, BRAND_SYNC_READ_SCOPE),
         canSyncBrand: hasScope(context, BRAND_SYNC_WRITE_SCOPE),
       });
     } catch (error) {
@@ -242,4 +246,14 @@ export async function syncAccessibleTenantBrandConfig(user: OperatorUserRow, ten
     canWrite: candidates.some((candidate) => candidate.canWrite),
     canSyncBrand: true,
   };
+}
+
+export async function listAccessibleTenantBrandSyncRuns(user: OperatorUserRow, tenantId: string) {
+  const candidates = await findTenantTokenCandidates(user, tenantId);
+  const result = candidates.find((candidate) => candidate.canReadBrandSync);
+  if (!result) {
+    throw new ForbiddenError("当前客户端令牌缺少 brand-sync:read 权限");
+  }
+
+  return listClientTenantBrandSyncRuns(result.token.clientToken, tenantId);
 }

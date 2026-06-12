@@ -1,6 +1,6 @@
 "use client";
 
-import { KeyRound, Loader2, Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, KeyRound, Loader2, Plus, Trash2, X } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 
 import { AccountProfileEditor } from "@/components/operator/AccountProfileEditor";
@@ -45,6 +45,7 @@ export function ClientTokenManager() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [pendingDeleteToken, setPendingDeleteToken] = useState<SafeClientToken | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -140,6 +141,7 @@ export function ClientTokenManager() {
 
       if (!response.ok) {
         setError(await readApiError(response));
+        setPendingDeleteToken(null);
         setDeletingId(null);
         return;
       }
@@ -148,9 +150,11 @@ export function ClientTokenManager() {
         current.filter((clientToken) => clientToken.id !== clientTokenId),
       );
       setNotice("客户端令牌已删除");
+      setPendingDeleteToken(null);
       setDeletingId(null);
     } catch {
       setError("客户端令牌删除失败，请稍后重试");
+      setPendingDeleteToken(null);
       setDeletingId(null);
     }
   }
@@ -167,6 +171,60 @@ export function ClientTokenManager() {
               : "正在处理客户端令牌"
         }
       />
+      {pendingDeleteToken ? (
+        <div className="operator-confirm-backdrop" role="presentation">
+          <div
+            aria-labelledby="delete-client-token-title"
+            aria-modal="true"
+            className="operator-confirm-dialog"
+            role="dialog"
+          >
+            <button
+              aria-label="取消删除客户端令牌"
+              className="operator-confirm-close"
+              disabled={Boolean(deletingId)}
+              onClick={() => setPendingDeleteToken(null)}
+              type="button"
+            >
+              <X size={16} />
+            </button>
+            <div className="operator-confirm-icon">
+              <AlertTriangle size={22} />
+            </div>
+            <div className="operator-confirm-copy">
+              <h2 id="delete-client-token-title">确认删除客户端令牌？</h2>
+              <p>删除后，这个令牌将不再参与租户读取、配置保存和数据同步。</p>
+            </div>
+            <div className="operator-confirm-target">
+              <strong>{pendingDeleteToken.clientTokenLabel || "未命名客户端令牌"}</strong>
+              <small>fp:{pendingDeleteToken.fingerprint}</small>
+            </div>
+            <div className="operator-confirm-actions">
+              <button
+                className="operator-secondary-btn"
+                disabled={Boolean(deletingId)}
+                onClick={() => setPendingDeleteToken(null)}
+                type="button"
+              >
+                取消
+              </button>
+              <button
+                className="operator-danger-btn"
+                disabled={Boolean(deletingId)}
+                onClick={() => deleteClientToken(pendingDeleteToken.id)}
+                type="button"
+              >
+                {deletingId === pendingDeleteToken.id ? (
+                  <Loader2 className="spin" size={16} />
+                ) : (
+                  <Trash2 size={16} />
+                )}
+                确认删除
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <section
         aria-busy={loading || submitting || Boolean(deletingId)}
         className="operator-shell"
@@ -241,7 +299,7 @@ export function ClientTokenManager() {
                     <button
                       className="operator-icon-btn"
                       disabled={loading || submitting || Boolean(deletingId)}
-                      onClick={() => deleteClientToken(clientToken.id)}
+                      onClick={() => setPendingDeleteToken(clientToken)}
                       title="删除客户端令牌"
                       type="button"
                     >

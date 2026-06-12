@@ -14,10 +14,10 @@ export default async function LoginPage() {
 
   return (
     <AuthShell
-      copy="用手机号进入 Roll 运营后台，继续管理 Boss 招聘账号与后续自动化能力。"
+      copy="使用手机号登录 Roll 后台，管理 Boss 招聘账号、客户端令牌和租户配置。"
       eyebrow="Reply Authority"
       mode="login"
-      title="运营后台登录"
+      title="Roll 后台登录"
     >
       <LoginForm />
     </AuthShell>

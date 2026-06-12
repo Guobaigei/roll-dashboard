@@ -14,10 +14,10 @@ export default async function RegisterPage() {
 
   return (
     <AuthShell
-      copy="创建运营账号并绑定 Boss 的用户名。客户端令牌、租户和自动化工作台能力会在后续模块中接入。"
+      copy="创建账号并绑定 Boss 的用户名，后续可配置客户端令牌、租户和自动化能力。"
       eyebrow="Account Setup"
       mode="register"
-      title="注册运营账号"
+      title="注册账户"
     >
       <RegisterForm />
     </AuthShell>
