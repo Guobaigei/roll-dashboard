@@ -1,7 +1,7 @@
 {
   "core": "0.10.0",
-  "browserUse": "0.17.0",
-  "smartReply": "1.3.0",
+  "browserUse": "0.18.0",
+  "smartReply": "1.3.1",
   "skillArchive": {
     "fileName": "openclaw-roll-core-skill-latest.zip",
     "sizeBytes": 24558,

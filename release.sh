@@ -65,6 +65,13 @@ require_config() {
   fi
 }
 
+print_release_next_steps() {
+  echo ""
+  echo "[release] 后续操作:"
+  echo "  - 如果单独运行 release.sh，请继续执行: bash ./deploy.sh"
+  echo "  - 如果通过 pnpm deploy:server 发布，脚本会自动进入部署步骤。"
+}
+
 write_md5() {
   local image_file="$1"
   local md5_file="$2"
@@ -158,14 +165,24 @@ fi
 
 FILE_SIZE=$(ls -lh "$OUTPUT_FILE" | awk '{print $5}')
 echo "Image archive created: $OUTPUT_FILE ($FILE_SIZE)"
+echo "[release] 打包镜像成功: ${IMAGE_NAME}:${BUILD_TIMESTAMP}, ${IMAGE_NAME}:latest"
 
 write_md5 "$OUTPUT_FILE" "$MD5_FILE"
 cleanup_old_images "$BUILD_TIMESTAMP"
 
 FILE_NAME=$(basename "$OUTPUT_FILE")
+MD5_FILE_NAME=$(basename "$MD5_FILE")
 
 echo "Uploading ${OUTPUT_FILE} to ${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}..."
 ssh -p "$SERVER_PORT" "${SERVER_USER}@${SERVER_HOST}" "mkdir -p '$REMOTE_DIR'"
-scp -P "$SERVER_PORT" "$OUTPUT_FILE" "${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}/"
+if [ -f "$MD5_FILE" ]; then
+  scp -P "$SERVER_PORT" "$OUTPUT_FILE" "$MD5_FILE" "${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}/"
+else
+  scp -P "$SERVER_PORT" "$OUTPUT_FILE" "${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}/"
+fi
 
-echo "Upload complete: ${REMOTE_DIR}/${FILE_NAME}"
+echo "[release] 上传成功: ${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}/${FILE_NAME}"
+if [ -f "$MD5_FILE" ]; then
+  echo "[release] 校验文件上传成功: ${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}/${MD5_FILE_NAME}"
+fi
+print_release_next_steps

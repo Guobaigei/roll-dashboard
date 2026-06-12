@@ -62,6 +62,15 @@ require_config() {
   fi
 }
 
+print_deploy_next_steps() {
+  echo ""
+  echo "[deploy] 后续验证:"
+  printf "  ssh -p %q %q %q\n" \
+    "$SERVER_PORT" \
+    "${SERVER_USER}@${SERVER_HOST}" \
+    "cd $(printf "%q" "$REMOTE_DIR") && docker compose -f docker-compose.yaml ps && docker logs roll-website --tail 100"
+}
+
 require_command ssh
 require_config
 
@@ -116,4 +125,9 @@ docker compose -f docker-compose.yaml up -d --force-recreate
 
 echo "Current service status:"
 docker compose -f docker-compose.yaml ps
+
+echo "部署成功: ${IMAGE_NAME}:latest 已通过 docker compose 启动。"
 REMOTE_SCRIPT
+
+echo "[deploy] 部署成功: ${IMAGE_NAME}:latest 已在 ${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR} 重启"
+print_deploy_next_steps

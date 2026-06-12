@@ -81,7 +81,7 @@ export function LoginForm() {
           登录
         </button>
         <p className="auth-form-footnote">
-          还没有账号？<Link href="/register">注册运营账号</Link>
+          还没有账号？<Link href="/register">注册账号</Link>
         </p>
       </form>
     </>

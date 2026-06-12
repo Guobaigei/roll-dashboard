@@ -77,3 +77,7 @@ export type BrandSyncRunSlice = {
   durationMs: number | null;
   tenantResult: BrandSyncTenantResult;
 };
+
+export type BrandSyncRunsResponse = {
+  runs: BrandSyncRunSlice[];
+};

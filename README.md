@@ -228,7 +228,7 @@ cd /path/to/roll-dashboard
 
 - 构建 `roll-website:YYYYMMDDHHMMSS` 和 `roll-website:latest`
 - 导出 `./docker-images/roll-website-YYYYMMDDHHMMSS.tar.gz`
-- 生成本地 `.md5`
+- 生成并上传 `.md5`
 - 上传镜像包到 `ROLL_WEBSITE_REMOTE_DIR`
 
 部署服务器上最新上传的镜像：
