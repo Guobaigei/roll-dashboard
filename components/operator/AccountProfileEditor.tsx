@@ -7,7 +7,7 @@ import { type FormEvent, useEffect, useState } from "react";
 import { RequestOverlay } from "@/components/ui/RequestOverlay";
 import { StatusToast } from "@/components/ui/StatusToast";
 import type { SafeOperatorUser } from "@/lib/db/operator-users";
-import { readApiError } from "@/lib/http/client";
+import { readApiError } from "@/lib/http/read-api-error";
 
 let accountRequest: Promise<SafeOperatorUser> | null = null;
 
