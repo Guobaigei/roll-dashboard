@@ -13,6 +13,7 @@ RUN corepack enable && pnpm i --frozen-lockfile
 FROM base AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+RUN corepack enable
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 

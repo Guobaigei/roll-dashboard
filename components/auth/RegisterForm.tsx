@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
 import { RequestOverlay } from "@/components/ui/RequestOverlay";
-import { readApiError } from "@/lib/http/client";
+import { readApiError } from "@/lib/http/read-api-error";
 
 export function RegisterForm() {
   const router = useRouter();

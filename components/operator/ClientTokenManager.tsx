@@ -6,7 +6,7 @@ import { type FormEvent, useEffect, useState } from "react";
 import { AccountProfileEditor } from "@/components/operator/AccountProfileEditor";
 import { RequestOverlay } from "@/components/ui/RequestOverlay";
 import { StatusToast } from "@/components/ui/StatusToast";
-import { readApiError } from "@/lib/http/client";
+import { readApiError } from "@/lib/http/read-api-error";
 
 type SafeClientToken = {
   id: string;

@@ -18,7 +18,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { RequestOverlay } from "@/components/ui/RequestOverlay";
 import { StatusToast } from "@/components/ui/StatusToast";
-import { readApiError } from "@/lib/http/client";
+import { readApiError } from "@/lib/http/read-api-error";
 import type {
   BrandSyncRunSlice,
   RecruiterBinding,

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Terminal } from "@/components/ui/Terminal";
-import { useClipboardFeedback } from "@/components/useClipboardFeedback";
+import { useClipboardFeedback } from "@/hooks/use-clipboard-feedback";
 import versions from "../public/roll-versions.json";
 
 type Step = {

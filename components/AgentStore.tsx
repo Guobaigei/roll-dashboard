@@ -3,8 +3,8 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { useClipboardFeedback } from "@/components/useClipboardFeedback";
 import type { Agent } from "@/data/agents";
+import { useClipboardFeedback } from "@/hooks/use-clipboard-feedback";
 import versions from "../public/roll-versions.json";
 
 type AgentStoreProps = {

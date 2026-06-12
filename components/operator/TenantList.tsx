@@ -4,8 +4,8 @@ import { AlertTriangle, ArrowUpRight, Inbox, KeyRound, Loader2, ShieldCheck } fr
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { formatDateTime } from "@/lib/format";
-import { readApiError } from "@/lib/http/client";
+import { formatDateTime } from "@/lib/format/date-time";
+import { readApiError } from "@/lib/http/read-api-error";
 import type { Tenant } from "@/lib/reply-authority/types";
 
 type TokenWarning = {
