@@ -187,16 +187,19 @@ curl -I http://127.0.0.1:3004/
 
 ## CI/CD 自动部署
 
-`.github/workflows/deploy.yml` 会在 `main` 分支收到新提交时自动执行部署。也就是说，PR merge 到
-`main` 后会触发：
+`.github/workflows/deploy.yml` 会在 PR 合并到 `main` 后自动执行部署。工作流监听
+`pull_request_target.closed`，并且只在 `github.event.pull_request.merged == true` 时运行部署任务：
 
 ```text
-push main
+PR merged into main
   -> GitHub Actions
+  -> checkout merge_commit_sha
   -> pnpm deploy:server
   -> release.sh
   -> deploy.sh
 ```
+
+也可以在 GitHub Actions 页面手动触发 `workflow_dispatch`，用于补发部署。
 
 GitHub Actions 需要配置以下 Repository Secrets：
 
