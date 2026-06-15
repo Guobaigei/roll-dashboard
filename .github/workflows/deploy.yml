@@ -1,7 +1,9 @@
 name: Deploy to server
 
 on:
-  push:
+  pull_request_target:
+    types:
+      - closed
     branches:
       - main
   workflow_dispatch:
@@ -13,6 +15,7 @@ concurrency:
 jobs:
   deploy:
     name: Build and deploy
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
@@ -29,8 +32,24 @@ jobs:
       ROLL_WEBSITE_OUTPUT_DIR: /tmp/roll-website-images
 
     steps:
+      - name: Show deployment source
+        env:
+          DEPLOY_EVENT_NAME: ${{ github.event_name }}
+          DEPLOY_PR_NUMBER: ${{ github.event.pull_request.number || '' }}
+          DEPLOY_PR_TITLE: ${{ github.event.pull_request.title || '' }}
+          DEPLOY_MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+        run: |
+          if [ "$DEPLOY_EVENT_NAME" = "pull_request_target" ]; then
+            printf 'Deploying merged PR #%s: %s\n' "$DEPLOY_PR_NUMBER" "$DEPLOY_PR_TITLE"
+            printf 'Merge commit: %s\n' "$DEPLOY_MERGE_SHA"
+          else
+            printf 'Deploying manual workflow run from %s\n' "$GITHUB_REF"
+          fi
+
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -46,7 +65,6 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Configure deployment environment
-        if: github.ref == 'refs/heads/main'
         run: |
           : "${DEPLOY_SERVER_USER:?Missing DEPLOY_SERVER_USER secret}"
           : "${DEPLOY_SERVER_HOST:?Missing DEPLOY_SERVER_HOST secret}"
@@ -81,5 +99,4 @@ jobs:
           EOF
 
       - name: Deploy
-        if: github.ref == 'refs/heads/main'
         run: pnpm deploy:server
