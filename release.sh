@@ -65,6 +65,24 @@ require_config() {
   fi
 }
 
+validate_remote_dir() {
+  if [[ "$REMOTE_DIR" != /* ]]; then
+    echo "Error: ROLL_WEBSITE_REMOTE_DIR must be an absolute path."
+    exit 1
+  fi
+
+  if [[ ! "$REMOTE_DIR" =~ ^/[A-Za-z0-9._/-]+$ ]]; then
+    echo "Error: ROLL_WEBSITE_REMOTE_DIR contains unsupported characters."
+    echo "Allowed characters: letters, numbers, slash, dot, underscore, and hyphen."
+    exit 1
+  fi
+
+  if [[ "$REMOTE_DIR" == *"/../"* || "$REMOTE_DIR" == *"/.." ]]; then
+    echo "Error: ROLL_WEBSITE_REMOTE_DIR must not contain '..' path segments."
+    exit 1
+  fi
+}
+
 print_release_next_steps() {
   echo ""
   echo "[release] 后续操作:"
@@ -136,6 +154,7 @@ require_command ssh
 require_command scp
 require_command gzip
 require_config
+validate_remote_dir
 
 BUILD_TIMESTAMP=$(date +%Y%m%d%H%M%S)
 OUTPUT_FILE="$OUTPUT_DIR/${IMAGE_NAME}-${BUILD_TIMESTAMP}.tar.gz"

@@ -62,6 +62,24 @@ require_config() {
   fi
 }
 
+validate_remote_dir() {
+  if [[ "$REMOTE_DIR" != /* ]]; then
+    echo "Error: ROLL_WEBSITE_REMOTE_DIR must be an absolute path."
+    exit 1
+  fi
+
+  if [[ ! "$REMOTE_DIR" =~ ^/[A-Za-z0-9._/-]+$ ]]; then
+    echo "Error: ROLL_WEBSITE_REMOTE_DIR contains unsupported characters."
+    echo "Allowed characters: letters, numbers, slash, dot, underscore, and hyphen."
+    exit 1
+  fi
+
+  if [[ "$REMOTE_DIR" == *"/../"* || "$REMOTE_DIR" == *"/.." ]]; then
+    echo "Error: ROLL_WEBSITE_REMOTE_DIR must not contain '..' path segments."
+    exit 1
+  fi
+}
+
 print_deploy_next_steps() {
   echo ""
   echo "[deploy] 后续验证:"
@@ -73,6 +91,7 @@ print_deploy_next_steps() {
 
 require_command ssh
 require_config
+validate_remote_dir
 
 echo "Deploying latest ${IMAGE_NAME} image on ${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}..."
 
