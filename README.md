@@ -171,8 +171,8 @@ pnpm deploy:server
 1. `release.sh`：读取 `deploy.env.local`，构建 `roll-website:<timestamp>` 和
    `roll-website:latest`，导出 `roll-website-YYYYMMDDHHMMSS.tar.gz`，生成 md5，并上传到
    `ROLL_WEBSITE_REMOTE_DIR`。
-2. `deploy.sh`：SSH 到服务器，进入 `ROLL_WEBSITE_REMOTE_DIR`，加载最新镜像包，然后执行
-   `docker compose -f docker-compose.yaml up -d --force-recreate`。
+2. `deploy.sh`：SSH 到服务器，进入 `ROLL_WEBSITE_REMOTE_DIR`，优先加载本次 `release.sh`
+   产出的镜像包，然后执行 `docker compose -f docker-compose.yaml up -d --force-recreate`。
 
 也可以单独执行两个阶段。
 
@@ -233,6 +233,7 @@ cd /path/to/roll-dashboard
 - 导出 `./docker-images/roll-website-YYYYMMDDHHMMSS.tar.gz`
 - 生成并上传 `.md5`
 - 上传镜像包到 `ROLL_WEBSITE_REMOTE_DIR`
+- 写入 `./docker-images/roll-website-latest.env`，供 `deploy.sh` 精确选择本次镜像
 
 部署服务器上最新上传的镜像：
 
@@ -245,7 +246,7 @@ cd /path/to/roll-dashboard
 
 ```bash
 cd "$ROLL_WEBSITE_REMOTE_DIR"
-IMAGE_FILE=$(ls roll-website-*.tar.gz | sort | tail -n 1)
+IMAGE_FILE="${ROLL_WEBSITE_IMAGE_FILE:-roll-website-YYYYMMDDHHMMSS.tar.gz}"
 gunzip -c "$IMAGE_FILE" | docker load
 docker compose -f docker-compose.yaml up -d --force-recreate
 docker compose -f docker-compose.yaml ps
