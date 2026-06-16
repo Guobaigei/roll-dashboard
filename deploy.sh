@@ -14,6 +14,9 @@ usage() {
   echo "Environment overrides:"
   echo "  DEPLOY_CONFIG_FILE=/path/to/deploy.env.local"
   echo "  ROLL_WEBSITE_REMOTE_DIR=/path/on/server"
+  echo "  ROLL_WEBSITE_IMAGE_FILE=roll-website-YYYYMMDDHHMMSS.tar.gz"
+  echo "  ROLL_WEBSITE_OUTPUT_DIR=./docker-images"
+  echo "  ROLL_WEBSITE_RELEASE_STATE_FILE=./docker-images/roll-website-latest.env"
 }
 
 if [ "$#" -gt 0 ]; then
@@ -37,6 +40,9 @@ SERVER_USER="${DEPLOY_SERVER_USER:-}"
 SERVER_HOST="${DEPLOY_SERVER_HOST:-}"
 SERVER_PORT="${DEPLOY_SERVER_PORT:-}"
 REMOTE_DIR="${ROLL_WEBSITE_REMOTE_DIR:-${DEPLOY_REMOTE_DIR:-}}"
+OUTPUT_DIR="${ROLL_WEBSITE_OUTPUT_DIR:-${DEPLOY_OUTPUT_DIR:-./docker-images}}"
+RELEASE_STATE_FILE="${ROLL_WEBSITE_RELEASE_STATE_FILE:-$OUTPUT_DIR/${IMAGE_NAME}-latest.env}"
+IMAGE_FILE="${ROLL_WEBSITE_IMAGE_FILE:-}"
 
 require_command() {
   local command_name="$1"
@@ -80,6 +86,35 @@ validate_remote_dir() {
   fi
 }
 
+read_release_state() {
+  local key
+  local value
+
+  if [ -n "$IMAGE_FILE" ] || [ ! -f "$RELEASE_STATE_FILE" ]; then
+    return
+  fi
+
+  while IFS='=' read -r key value; do
+    if [ "$key" = "ROLL_WEBSITE_IMAGE_FILE" ]; then
+      IMAGE_FILE="$value"
+      return
+    fi
+  done <"$RELEASE_STATE_FILE"
+}
+
+validate_image_file() {
+  if [ -z "$IMAGE_FILE" ]; then
+    echo "Warning: ROLL_WEBSITE_IMAGE_FILE is not set; falling back to latest uploaded image."
+    return
+  fi
+
+  if [[ ! "$IMAGE_FILE" =~ ^${IMAGE_NAME}-[0-9]{14}\.tar\.gz$ ]]; then
+    echo "Error: ROLL_WEBSITE_IMAGE_FILE has an invalid file name: $IMAGE_FILE"
+    echo "Expected file pattern: ${IMAGE_NAME}-YYYYMMDDHHMMSS.tar.gz"
+    exit 1
+  fi
+}
+
 print_deploy_next_steps() {
   echo ""
   echo "[deploy] 后续验证:"
@@ -92,12 +127,19 @@ print_deploy_next_steps() {
 require_command ssh
 require_config
 validate_remote_dir
+read_release_state
+validate_image_file
 
-echo "Deploying latest ${IMAGE_NAME} image on ${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}..."
+if [ -n "$IMAGE_FILE" ]; then
+  echo "Deploying selected ${IMAGE_NAME} image on ${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}: $IMAGE_FILE"
+else
+  echo "Deploying latest ${IMAGE_NAME} image on ${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}..."
+fi
 
 QUOTED_DIR=$(printf '%q' "$REMOTE_DIR")
+QUOTED_IMAGE_FILE=$(printf '%q' "$IMAGE_FILE")
 ssh -p "$SERVER_PORT" "${SERVER_USER}@${SERVER_HOST}" \
-  "REMOTE_DIR=$QUOTED_DIR IMAGE_NAME=roll-website bash -se" <<'REMOTE_SCRIPT'
+  "REMOTE_DIR=$QUOTED_DIR IMAGE_NAME=roll-website IMAGE_FILE=$QUOTED_IMAGE_FILE bash -se" <<'REMOTE_SCRIPT'
 set -euo pipefail
 
 cd "$REMOTE_DIR"
@@ -117,7 +159,15 @@ if ! docker compose version >/dev/null 2>&1; then
   exit 1
 fi
 
-latest_image=$(ls "${IMAGE_NAME}"-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].tar.gz 2>/dev/null | sort | tail -n 1)
+if [ -n "${IMAGE_FILE:-}" ]; then
+  latest_image="$IMAGE_FILE"
+  if [ ! -f "$latest_image" ]; then
+    echo "Error: selected uploaded image was not found in $REMOTE_DIR: $latest_image"
+    exit 1
+  fi
+else
+  latest_image=$(ls "${IMAGE_NAME}"-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].tar.gz 2>/dev/null | sort | tail -n 1)
+fi
 
 if [ -z "$latest_image" ]; then
   echo "Error: no uploaded image found in $REMOTE_DIR"

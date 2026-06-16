@@ -13,7 +13,7 @@ concurrency:
 jobs:
   deploy:
     name: Build and deploy
-    if: github.event_name == 'push' || github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: Production
@@ -71,6 +71,27 @@ jobs:
           : "${DEPLOY_SSH_KNOWN_HOSTS:?Missing DEPLOY_SSH_KNOWN_HOSTS secret}"
           : "${ROLL_WEBSITE_REMOTE_DIR:?Missing ROLL_WEBSITE_REMOTE_DIR secret}"
 
+          case "$DEPLOY_SERVER_USER" in
+            *[!A-Za-z0-9._-]*)
+              echo "DEPLOY_SERVER_USER contains unsupported characters."
+              exit 1
+              ;;
+          esac
+
+          case "$DEPLOY_SERVER_HOST" in
+            *[!A-Za-z0-9._-]*)
+              echo "DEPLOY_SERVER_HOST contains unsupported characters."
+              exit 1
+              ;;
+          esac
+
+          case "$DEPLOY_SERVER_PORT" in
+            *[!0-9]*)
+              echo "DEPLOY_SERVER_PORT must be numeric."
+              exit 1
+              ;;
+          esac
+
           install -d -m 700 "$HOME/.ssh"
           printf '%s\n' "$DEPLOY_SSH_PRIVATE_KEY" >"$HOME/.ssh/id_deploy"
           chmod 600 "$HOME/.ssh/id_deploy"
@@ -88,13 +109,17 @@ jobs:
           EOF
           chmod 600 "$HOME/.ssh/config"
 
-          cat >"$DEPLOY_CONFIG_FILE" <<EOF
-          DEPLOY_SERVER_USER=${DEPLOY_SERVER_USER}
-          DEPLOY_SERVER_HOST=${DEPLOY_SERVER_HOST}
-          DEPLOY_SERVER_PORT=${DEPLOY_SERVER_PORT}
-          ROLL_WEBSITE_REMOTE_DIR=${ROLL_WEBSITE_REMOTE_DIR}
-          ROLL_WEBSITE_OUTPUT_DIR=${ROLL_WEBSITE_OUTPUT_DIR}
-          EOF
+          write_config_var() {
+            printf '%s=%q\n' "$1" "$2" >>"$DEPLOY_CONFIG_FILE"
+          }
+
+          : >"$DEPLOY_CONFIG_FILE"
+          chmod 600 "$DEPLOY_CONFIG_FILE"
+          write_config_var DEPLOY_SERVER_USER "$DEPLOY_SERVER_USER"
+          write_config_var DEPLOY_SERVER_HOST "$DEPLOY_SERVER_HOST"
+          write_config_var DEPLOY_SERVER_PORT "$DEPLOY_SERVER_PORT"
+          write_config_var ROLL_WEBSITE_REMOTE_DIR "$ROLL_WEBSITE_REMOTE_DIR"
+          write_config_var ROLL_WEBSITE_OUTPUT_DIR "$ROLL_WEBSITE_OUTPUT_DIR"
 
       - name: Deploy
         run: pnpm deploy:server

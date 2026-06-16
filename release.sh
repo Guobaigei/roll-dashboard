@@ -16,6 +16,7 @@ usage() {
   echo "  DEPLOY_CONFIG_FILE=/path/to/deploy.env.local"
   echo "  ROLL_WEBSITE_REMOTE_DIR=/path/on/server"
   echo "  ROLL_WEBSITE_OUTPUT_DIR=./docker-images"
+  echo "  ROLL_WEBSITE_RELEASE_STATE_FILE=./docker-images/roll-website-latest.env"
 }
 
 if [ "$#" -gt 0 ]; then
@@ -137,6 +138,27 @@ cleanup_old_images() {
   shopt -u nullglob
 }
 
+write_release_state() {
+  local state_file="$1"
+  local image_file_name="$2"
+  local md5_file_name="$3"
+  local state_dir
+  local state_tmp
+
+  state_dir=$(dirname "$state_file")
+  mkdir -p "$state_dir"
+
+  state_tmp=$(mktemp "${state_file}.XXXXXX")
+  {
+    printf 'ROLL_WEBSITE_IMAGE_FILE=%s\n' "$image_file_name"
+    if [ -n "$md5_file_name" ]; then
+      printf 'ROLL_WEBSITE_IMAGE_MD5_FILE=%s\n' "$md5_file_name"
+    fi
+  } >"$state_tmp"
+  mv "$state_tmp" "$state_file"
+  echo "[release] 本次发布状态已写入: $state_file"
+}
+
 if ! grep -qx "\\.env" .dockerignore || ! grep -qx "\\.env\\.\\*" .dockerignore; then
   echo "Error: .dockerignore does not ignore both .env and .env.* files."
   echo "This may package secrets into the Docker image."
@@ -159,6 +181,7 @@ validate_remote_dir
 BUILD_TIMESTAMP=$(date +%Y%m%d%H%M%S)
 OUTPUT_FILE="$OUTPUT_DIR/${IMAGE_NAME}-${BUILD_TIMESTAMP}.tar.gz"
 MD5_FILE="$OUTPUT_DIR/${IMAGE_NAME}-${BUILD_TIMESTAMP}.md5"
+RELEASE_STATE_FILE="${ROLL_WEBSITE_RELEASE_STATE_FILE:-$OUTPUT_DIR/${IMAGE_NAME}-latest.env}"
 
 echo "Building ${IMAGE_NAME}:${BUILD_TIMESTAMP} for linux/amd64..."
 docker build --platform linux/amd64 \
@@ -191,14 +214,18 @@ cleanup_old_images "$BUILD_TIMESTAMP"
 
 FILE_NAME=$(basename "$OUTPUT_FILE")
 MD5_FILE_NAME=$(basename "$MD5_FILE")
+UPLOADED_MD5_FILE_NAME=""
 
 echo "Uploading ${OUTPUT_FILE} to ${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}..."
 ssh -p "$SERVER_PORT" "${SERVER_USER}@${SERVER_HOST}" "mkdir -p $(printf '%q' "$REMOTE_DIR")"
 if [ -f "$MD5_FILE" ]; then
   scp -P "$SERVER_PORT" "$OUTPUT_FILE" "$MD5_FILE" "${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}/"
+  UPLOADED_MD5_FILE_NAME="$MD5_FILE_NAME"
 else
   scp -P "$SERVER_PORT" "$OUTPUT_FILE" "${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}/"
 fi
+
+write_release_state "$RELEASE_STATE_FILE" "$FILE_NAME" "$UPLOADED_MD5_FILE_NAME"
 
 echo "[release] 上传成功: ${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}/${FILE_NAME}"
 if [ -f "$MD5_FILE" ]; then
