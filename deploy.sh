@@ -76,8 +76,9 @@ require_config
 
 echo "Deploying latest ${IMAGE_NAME} image on ${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}..."
 
+QUOTED_DIR=$(printf '%q' "$REMOTE_DIR")
 ssh -p "$SERVER_PORT" "${SERVER_USER}@${SERVER_HOST}" \
-  "REMOTE_DIR='$REMOTE_DIR' IMAGE_NAME='$IMAGE_NAME' bash -se" <<'REMOTE_SCRIPT'
+  "REMOTE_DIR=$QUOTED_DIR IMAGE_NAME=roll-website bash -se" <<'REMOTE_SCRIPT'
 set -euo pipefail
 
 cd "$REMOTE_DIR"

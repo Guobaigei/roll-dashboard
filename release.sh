@@ -174,7 +174,7 @@ FILE_NAME=$(basename "$OUTPUT_FILE")
 MD5_FILE_NAME=$(basename "$MD5_FILE")
 
 echo "Uploading ${OUTPUT_FILE} to ${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}..."
-ssh -p "$SERVER_PORT" "${SERVER_USER}@${SERVER_HOST}" "mkdir -p '$REMOTE_DIR'"
+ssh -p "$SERVER_PORT" "${SERVER_USER}@${SERVER_HOST}" "mkdir -p $(printf '%q' "$REMOTE_DIR")"
 if [ -f "$MD5_FILE" ]; then
   scp -P "$SERVER_PORT" "$OUTPUT_FILE" "$MD5_FILE" "${SERVER_USER}@${SERVER_HOST}:${REMOTE_DIR}/"
 else
