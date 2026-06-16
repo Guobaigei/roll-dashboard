@@ -7,7 +7,7 @@
   "scripts": {
     "predev": "node scripts/prepare-skill.js",
     "dev": "PORT=3100 next dev",
-    "prebuild": "node scripts/prepare-skill.js",
+    "prebuild": "node scripts/prepare-skill.js && prisma generate",
     "build": "next build",
     "start": "next start",
     "deploy:server": "bash ./deploy-server.sh",
