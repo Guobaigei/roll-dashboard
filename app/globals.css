@@ -58,6 +58,8 @@
   --blue-glow: rgba(0, 210, 255, 0.15);
   --green: #00ff66;
   --green-glow: rgba(0, 255, 102, 0.15);
+  --purple: #b14dff;
+  --purple-glow: rgba(177, 77, 255, 0.15);
 
   /* Typography Families */
   --font-mono:
@@ -256,6 +258,9 @@ body {
 .btn-card.accent-green::after {
   background: var(--green);
 }
+.btn-card.accent-purple::after {
+  background: var(--purple);
+}
 
 .btn-card.active::after {
   width: 100%;
@@ -273,6 +278,9 @@ body {
 }
 .btn-card.accent-green.active {
   border-color: var(--green);
+}
+.btn-card.accent-purple.active {
+  border-color: var(--purple);
 }
 
 .btn-card:hover:not(.active) {
@@ -308,6 +316,9 @@ body {
 }
 .ui-card.accent-green {
   border-top: 4px solid var(--green);
+}
+.ui-card.accent-purple {
+  border-top: 4px solid var(--purple);
 }
 
 .ui-card-body {
@@ -1590,6 +1601,9 @@ button {
 .market-card-btn.accent-green::after {
   background: var(--green);
 }
+.market-card-btn.accent-purple::after {
+  background: var(--purple);
+}
 
 .market-card-btn.selected::after {
   width: 100%;
@@ -1607,6 +1621,9 @@ button {
 }
 .market-card-btn.accent-green.selected {
   border-color: var(--green);
+}
+.market-card-btn.accent-purple.selected {
+  border-color: var(--purple);
 }
 
 .market-card-btn:hover:not(.selected) {
@@ -1666,6 +1683,11 @@ button {
   border: 1px solid rgba(0, 255, 102, 0.2);
 }
 
+.status-pill.accent-purple {
+  color: var(--purple);
+  border: 1px solid rgba(177, 77, 255, 0.2);
+}
+
 .version-pill {
   font-size: 8px;
   font-weight: bold;
@@ -1689,6 +1711,11 @@ button {
 .version-pill.accent-green {
   color: var(--green);
   border-color: rgba(0, 255, 102, 0.2);
+}
+
+.version-pill.accent-purple {
+  color: var(--purple);
+  border-color: rgba(177, 77, 255, 0.2);
 }
 
 .market-card-title {
@@ -1728,6 +1755,9 @@ button {
 }
 .market-detail-aside.accent-green {
   border-top: 4px solid var(--green);
+}
+.market-detail-aside.accent-purple {
+  border-top: 4px solid var(--purple);
 }
 
 .detail-status-row {
