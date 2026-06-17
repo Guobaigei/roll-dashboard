@@ -14,6 +14,7 @@ type AgentStoreProps = {
 const AGENT_VERSION_BY_ID = {
   "browser-use-agent": versions.browserUse,
   "smart-reply-agent": versions.smartReply,
+  "reply-policy-tuner-agent": versions.replyPolicyTuner,
 } as const;
 
 function getAgentVersionLabel(agentId: string) {

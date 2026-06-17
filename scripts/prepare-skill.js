@@ -37,6 +37,14 @@ const packageSources = {
     localPackageJson: path.resolve(__dirname, "../../nano-agent/agents/smart-reply/package.json"),
     packageName: "@roll-agent/smart-reply-agent",
   },
+  replyPolicyTuner: {
+    defaultVersion: "0.1.3",
+    localPackageJson: path.resolve(
+      __dirname,
+      "../../nano-agent/agents/reply-policy-tuner/package.json",
+    ),
+    packageName: "@roll-agent/reply-policy-tuner-agent",
+  },
 };
 
 if (!fs.existsSync(publicDir)) {

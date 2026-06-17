@@ -5,7 +5,7 @@ export type Agent = {
   plainSummary: string;
   examplePrompt: string;
   businessOutcome: string;
-  accent: "orange" | "blue" | "green";
+  accent: "orange" | "blue" | "green" | "purple";
   category: string;
   tags: string[];
   installCommand: string;
@@ -48,6 +48,24 @@ export const agents: Agent[] = [
     installCommand: "roll agent install @roll-agent/smart-reply-agent",
     runCommand: "roll run smart-reply-agent [tool_name]",
     runtimeDetails: "按需调用微进程 (stdio) | 零常驻内存开销 | 强加密通道",
+  },
+  {
+    id: "reply-policy-tuner-agent",
+    roleName: "回复策略调优师",
+    overview:
+      "回复策略的 RSI 编排与安全调优大脑。通过 stdio 接入 Roll 指挥官，以 12 个 MCP Tool 托管租户级回复策略的全生命周期：补丁校验 → 话术预览 → 双路评估 → 有条件写入。所有策略变更必须先经 Reply Authority Service (RAS) 评估，并受本地 Evaluate 门禁约束（评估通过后须在 TTL 内方可落库）；Hard Gate、事实核查与冻结评分 Judge 全程固定开启，从源头杜绝未经评估的策略直接上线。",
+    plainSummary: "以「校验—预览—双路评估—有条件写入」闭环安全编排租户级回复策略，评估不过不落库。",
+    examplePrompt:
+      'roll run reply-policy-tuner-agent get_policy --input-json \'{"tenantId":"<tenant-id>"}\'',
+    businessOutcome:
+      "🧪 让改策略像灰度发布一样可控：每次调整先评估再上线，杜绝拍脑袋改话术造成的线上事故与合规风险。",
+    accent: "purple",
+    category: "策略 RSI 编排与评估门禁",
+    tags: ["Reply Authority", "双路评估门禁", "有条件写入", "Judge 安全护栏"],
+    installCommand: "roll agent install @roll-agent/reply-policy-tuner-agent",
+    runCommand: "roll run reply-policy-tuner-agent [tool_name]",
+    runtimeDetails:
+      "按需调用微进程 (stdio) | 依赖 Reply Authority Service + Bearer Token | Evaluate 门禁 TTL 保护",
   },
   {
     id: "notify-agent",
