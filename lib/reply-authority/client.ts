@@ -5,6 +5,10 @@ import type {
   AuthContext,
   BrandSyncRunSlice,
   BrandSyncRunsResponse,
+  ReplyPolicyPatchInput,
+  ReplyPolicyResponse,
+  ReplyPolicyValidatePatchInput,
+  ReplyPolicyValidatePatchResponse,
   Tenant,
   TenantPatchInput,
   TenantsResponse,
@@ -103,5 +107,42 @@ export function listClientTenantBrandSyncRuns(clientToken: string, tenantId: str
   return requestReplyAuthority<BrandSyncRunsResponse>(
     `/tenants/${encodeURIComponent(tenantId)}/brand-sync-runs`,
     clientToken,
+  );
+}
+
+export function getClientTenantReplyPolicy(clientToken: string, tenantId: string) {
+  return requestReplyAuthority<ReplyPolicyResponse>(
+    `/tenants/${encodeURIComponent(tenantId)}/reply-policy`,
+    clientToken,
+  );
+}
+
+export function validateClientTenantReplyPolicyPatch(
+  clientToken: string,
+  tenantId: string,
+  body: ReplyPolicyValidatePatchInput,
+) {
+  return requestReplyAuthority<ReplyPolicyValidatePatchResponse>(
+    `/tenants/${encodeURIComponent(tenantId)}/reply-policy:validate-patch`,
+    clientToken,
+    {
+      method: "POST",
+      body: JSON.stringify(body),
+    },
+  );
+}
+
+export function patchClientTenantReplyPolicy(
+  clientToken: string,
+  tenantId: string,
+  body: ReplyPolicyPatchInput,
+) {
+  return requestReplyAuthority<ReplyPolicyResponse>(
+    `/tenants/${encodeURIComponent(tenantId)}/reply-policy`,
+    clientToken,
+    {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    },
   );
 }

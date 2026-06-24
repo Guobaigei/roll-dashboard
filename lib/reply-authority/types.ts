@@ -5,6 +5,8 @@ export type AuthContext = {
   scopes: string[];
 };
 
+export type JsonObject = Record<string, unknown>;
+
 export type RecruiterBinding = {
   platform: string;
   username: string;
@@ -80,4 +82,43 @@ export type BrandSyncRunSlice = {
 
 export type BrandSyncRunsResponse = {
   runs: BrandSyncRunSlice[];
+};
+
+export type ReplyPolicySource = "tenant-file" | "global-file" | "default" | string;
+
+export type ReplyPolicyDiff = {
+  path: string;
+  before?: unknown;
+  after?: unknown;
+};
+
+export type ReplyPolicyResponse = {
+  tenantId: string;
+  source: ReplyPolicySource;
+  policyVersion: string;
+  policy: JsonObject;
+  warnings: unknown[];
+};
+
+export type ReplyPolicyValidatePatchInput = {
+  basePolicyVersion: string;
+  hypothesis?: string;
+  patch: JsonObject;
+};
+
+export type ReplyPolicyPatchInput = {
+  basePolicyVersion: string;
+  reason: string;
+  patch: JsonObject;
+};
+
+export type ReplyPolicyValidatePatchResponse = {
+  tenantId: string;
+  basePolicyVersion: string;
+  draftPolicyVersion: string;
+  source: ReplyPolicySource;
+  policy: JsonObject;
+  patch: JsonObject;
+  warnings: unknown[];
+  diff: ReplyPolicyDiff[];
 };

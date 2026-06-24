@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   ArrowUpRight,
   BarChart3,
+  Braces,
   Clock3,
   Database,
   History,
@@ -31,6 +32,9 @@ type TokenWarning = {
 type AccessibleTenant = Tenant & {
   access: {
     canWrite: boolean;
+    canReadReplyPolicy: boolean;
+    canWriteReplyPolicy: boolean;
+    canValidateReplyPolicy: boolean;
   };
 };
 
@@ -374,9 +378,28 @@ export function TenantList() {
               </span>
               <span className="operator-row-actions">
                 <Link className="operator-row-action" href={`/operator/tenants/${tenant.tenantId}`}>
-                  查看
                   <ArrowUpRight size={15} />
+                  查看
                 </Link>
+                {tenant.access.canReadReplyPolicy ? (
+                  <Link
+                    className="operator-row-action"
+                    href={`/operator/tenants/${tenant.tenantId}/reply-policy`}
+                  >
+                    <Braces size={15} />
+                    策略配置
+                  </Link>
+                ) : (
+                  <button
+                    className="operator-row-action operator-row-button"
+                    disabled
+                    title="当前客户端令牌缺少 reply-policy:read 权限"
+                    type="button"
+                  >
+                    <Braces size={15} />
+                    策略配置
+                  </button>
+                )}
                 <button
                   className="operator-row-action operator-row-button"
                   disabled={loadingHistoryTenantId === tenant.tenantId}
