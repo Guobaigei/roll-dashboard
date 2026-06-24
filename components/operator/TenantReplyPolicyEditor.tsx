@@ -3,64 +3,114 @@
 import {
   AlertTriangle,
   ArrowLeft,
-  Braces,
-  CheckCircle2,
-  FileDiff,
+  ChevronDown,
   Loader2,
+  Megaphone,
+  Plus,
   Save,
   ShieldCheck,
-  Wand2,
+  SlidersHorizontal,
+  Target,
+  Trash2,
+  UserRound,
 } from "lucide-react";
-import type { editor as MonacoEditor } from "monaco-editor";
-import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import type { ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { RequestOverlay } from "@/components/ui/RequestOverlay";
 import { StatusToast } from "@/components/ui/StatusToast";
 import { readApiError } from "@/lib/http/read-api-error";
-import type {
-  JsonObject,
-  ReplyPolicyDiff,
-  ReplyPolicyResponse,
-  ReplyPolicyValidatePatchResponse,
-  Tenant,
-} from "@/lib/reply-authority/types";
-
-const MonacoDiffEditor = dynamic(
-  () => import("@monaco-editor/react").then((module) => module.DiffEditor),
-  {
-    loading: () => (
-      <div className="operator-policy-monaco-loading">
-        <Loader2 className="spin" size={18} />
-        <span>正在加载策略对比编辑器</span>
-      </div>
-    ),
-    ssr: false,
-  },
-);
+import type { JsonObject, ReplyPolicyResponse, Tenant } from "@/lib/reply-authority/types";
 
 type ReplyPolicyEditorResponse = ReplyPolicyResponse & {
   tenant: Tenant;
   canWrite: boolean;
-  canValidate: boolean;
 };
 
-type ParsedPolicy =
-  | {
-      error: null;
-      signature: string;
-      value: JsonObject;
-    }
-  | {
-      error: string;
-      signature: null;
-      value: null;
-    };
+type JsonPathSegment = string | number;
+type JsonPath = readonly JsonPathSegment[];
+type PolicyTabId = "persona" | "stages" | "industry" | "rules" | "guards";
+
+type SelectOption = {
+  label: string;
+  value: string;
+};
+
+type HardConstraintRule = {
+  id: string;
+  rule: string;
+  severity: string;
+};
 
 const DEFAULT_SAVE_REASON = "操作台策略配置更新";
 const replyPolicyRequests = new Map<string, Promise<ReplyPolicyEditorResponse>>();
-const MONACO_THEME_NAME = "roll-policy-diff";
+let nextPolicyRowKey = 0;
+
+const POLICY_TABS = [
+  { id: "persona", label: "人格", icon: UserRound },
+  { id: "stages", label: "阶段目标", icon: Target },
+  { id: "industry", label: "行业语境", icon: Megaphone },
+  { id: "rules", label: "红线", icon: ShieldCheck },
+  { id: "guards", label: "输出保护", icon: SlidersHorizontal },
+] as const;
+
+const STAGE_DEFS = [
+  { id: "trust_building", label: "建立信任" },
+  { id: "private_channel", label: "私域转化" },
+  { id: "qualify_candidate", label: "资质确认" },
+  { id: "job_consultation", label: "岗位咨询" },
+  { id: "interview_scheduling", label: "面试邀约" },
+  { id: "onboard_followup", label: "到岗跟进" },
+] as const;
+
+type StageId = (typeof STAGE_DEFS)[number]["id"];
+
+const PERSONA_TEXT_FIELDS = [
+  { label: "语气", path: ["persona", "tone"] },
+  { label: "亲和度", path: ["persona", "warmth"] },
+  { label: "幽默度", path: ["persona", "humor"] },
+  { label: "提问风格", path: ["persona", "questionStyle"] },
+  { label: "共情策略", path: ["persona", "empathyStrategy"] },
+  { label: "称呼方式", path: ["persona", "addressStyle"] },
+  { label: "职业身份", path: ["persona", "professionalIdentity"] },
+  { label: "公司背景", path: ["persona", "companyBackground"] },
+] as const;
+
+const INDUSTRY_TEXT_FIELDS = [
+  { label: "名称", path: "name", multiline: false },
+  { label: "行业背景", path: "industryBackground", multiline: true },
+] as const;
+
+const LENGTH_OPTIONS = [
+  { value: "short", label: "short / 简短" },
+  { value: "medium", label: "medium / 适中" },
+  { value: "long", label: "long / 详细" },
+];
+
+const SEVERITY_OPTIONS = [
+  { value: "high", label: "high / 高" },
+  { value: "medium", label: "medium / 中" },
+  { value: "low", label: "low / 低" },
+];
+
+const FACT_GATE_MODE_OPTIONS = [
+  { value: "strict", label: "strict / 严格" },
+  { value: "balanced", label: "balanced / 平衡" },
+  { value: "open", label: "open / 开放" },
+];
+
+const FALLBACK_OPTIONS = [
+  { value: "generic_answer", label: "generic_answer / 泛化回答" },
+  { value: "ask_followup", label: "ask_followup / 追问补充" },
+  { value: "handoff", label: "handoff / 转人工" },
+];
+
+const PRIORITY_OPTIONS = [
+  { value: "high", label: "high / 高" },
+  { value: "medium", label: "medium / 中" },
+  { value: "low", label: "low / 低" },
+];
 
 function fetchReplyPolicyOnce(tenantId: string) {
   const current = replyPolicyRequests.get(tenantId);
@@ -86,44 +136,87 @@ function fetchReplyPolicyOnce(tenantId: string) {
   return request;
 }
 
-function parsePolicyText(value: string): ParsedPolicy {
-  let parsed: unknown;
-
-  try {
-    parsed = JSON.parse(value);
-  } catch {
-    return {
-      error: "JSON 格式无效",
-      signature: null,
-      value: null,
-    };
-  }
-
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-    return {
-      error: "策略草稿必须是 JSON 对象",
-      signature: null,
-      value: null,
-    };
-  }
-
-  return {
-    error: null,
-    signature: JSON.stringify(parsed),
-    value: parsed as JsonObject,
-  };
-}
-
-function toPrettyJson(value: unknown) {
-  return JSON.stringify(value, null, 2);
-}
-
 function isJsonObject(value: unknown): value is JsonObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function cloneJsonObject(value: JsonObject): JsonObject {
+  return JSON.parse(JSON.stringify(value)) as JsonObject;
+}
+
 function valuesEqual(left: unknown, right: unknown) {
   return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function getPathValue(source: unknown, path: JsonPath): unknown {
+  let cursor = source;
+
+  for (const segment of path) {
+    if (Array.isArray(cursor) && typeof segment === "number") {
+      cursor = cursor[segment];
+      continue;
+    }
+
+    if (isJsonObject(cursor) && typeof segment === "string") {
+      cursor = cursor[segment];
+      continue;
+    }
+
+    return undefined;
+  }
+
+  return cursor;
+}
+
+function assignPathValue(container: unknown, segment: JsonPathSegment, value: unknown) {
+  if (Array.isArray(container) && typeof segment === "number") {
+    container[segment] = value;
+    return true;
+  }
+
+  if (isJsonObject(container) && typeof segment === "string") {
+    container[segment] = value;
+    return true;
+  }
+
+  return false;
+}
+
+function readChildValue(container: unknown, segment: JsonPathSegment) {
+  if (Array.isArray(container) && typeof segment === "number") {
+    return container[segment];
+  }
+
+  if (isJsonObject(container) && typeof segment === "string") {
+    return container[segment];
+  }
+
+  return undefined;
+}
+
+function setPathValue(source: JsonObject, path: JsonPath, value: unknown): JsonObject {
+  const clone = cloneJsonObject(source);
+  let cursor: unknown = clone;
+
+  for (let index = 0; index < path.length; index += 1) {
+    const segment = path[index];
+    const isLast = index === path.length - 1;
+
+    if (isLast) {
+      assignPathValue(cursor, segment, value);
+      return clone;
+    }
+
+    let nextValue = readChildValue(cursor, segment);
+    if (!isJsonObject(nextValue) && !Array.isArray(nextValue)) {
+      nextValue = typeof path[index + 1] === "number" ? [] : {};
+      assignPathValue(cursor, segment, nextValue);
+    }
+
+    cursor = nextValue;
+  }
+
+  return clone;
 }
 
 function buildPolicyPatch(base: JsonObject, draft: JsonObject, path = "") {
@@ -165,32 +258,41 @@ function hasPatchChanges(patch: JsonObject) {
   return Object.keys(patch).length > 0;
 }
 
-function formatWarning(warning: unknown) {
-  if (typeof warning === "string") {
-    return warning;
-  }
-
-  if (warning && typeof warning === "object") {
-    if ("message" in warning && typeof warning.message === "string") {
-      return warning.message;
-    }
-
-    return toPrettyJson(warning);
-  }
-
-  return String(warning);
-}
-
-function formatDiffValue(value: unknown) {
-  if (value === undefined) {
-    return "未设置";
-  }
-
+function getStringAt(policy: JsonObject, path: JsonPath) {
+  const value = getPathValue(policy, path);
   if (typeof value === "string") {
     return value;
   }
 
-  return toPrettyJson(value);
+  if (value === undefined || value === null) {
+    return "";
+  }
+
+  return String(value);
+}
+
+function getBooleanAt(policy: JsonObject, path: JsonPath, fallback = false) {
+  const value = getPathValue(policy, path);
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function getNumberAt(policy: JsonObject, path: JsonPath, fallback = 0) {
+  const value = getPathValue(policy, path);
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function getStringArrayAt(policy: JsonObject, path: JsonPath) {
+  const value = getPathValue(policy, path);
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((item) => (typeof item === "string" ? item : String(item)));
+}
+
+function getRecordAt(policy: JsonObject, path: JsonPath) {
+  const value = getPathValue(policy, path);
+  return isJsonObject(value) ? value : {};
 }
 
 function policySourceLabel(source: string) {
@@ -205,78 +307,127 @@ function tenantDisplayName(tenant: Tenant | null, tenantId: string) {
   return tenant?.displayName || tenant?.tenantId || tenantId;
 }
 
+function getIndustryVoiceIds(policy: JsonObject) {
+  return Object.keys(getRecordAt(policy, ["industryVoices"]));
+}
+
+function getDefaultVoiceId(policy: JsonObject) {
+  const configured = getStringAt(policy, ["defaultIndustryVoiceId"]);
+  const voiceIds = getIndustryVoiceIds(policy);
+
+  if (configured && voiceIds.includes(configured)) {
+    return configured;
+  }
+
+  return voiceIds[0] ?? "default";
+}
+
+function createIndustryVoice(voiceId: string): JsonObject {
+  return {
+    name: voiceId,
+    industryBackground: "",
+    jargon: [],
+    styleKeywords: [],
+    tabooPhrases: [],
+    guidance: [],
+  };
+}
+
+function getRules(policy: JsonObject) {
+  const value = getPathValue(policy, ["hardConstraints", "rules"]);
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((item, index): HardConstraintRule => {
+    if (!isJsonObject(item)) {
+      return {
+        id: `rule-${index + 1}`,
+        rule: String(item ?? ""),
+        severity: "high",
+      };
+    }
+
+    return {
+      id: typeof item.id === "string" ? item.id : `rule-${index + 1}`,
+      rule: typeof item.rule === "string" ? item.rule : "",
+      severity: typeof item.severity === "string" ? item.severity : "high",
+    };
+  });
+}
+
+function nextRuleId(rules: HardConstraintRule[]) {
+  const existingIds = new Set(rules.map((rule) => rule.id));
+  let index = rules.length + 1;
+  let candidate = `rule-${index}`;
+
+  while (existingIds.has(candidate)) {
+    index += 1;
+    candidate = `rule-${index}`;
+  }
+
+  return candidate;
+}
+
+function createPolicyRowKey(prefix: string) {
+  nextPolicyRowKey += 1;
+  return `${prefix}-${nextPolicyRowKey}`;
+}
+
+function createPolicyRowKeys(prefix: string, count: number) {
+  return Array.from({ length: count }, () => createPolicyRowKey(prefix));
+}
+
+function syncPolicyRowKeys(keys: string[], count: number, prefix: string) {
+  if (keys.length === count) {
+    return keys;
+  }
+
+  if (keys.length > count) {
+    return keys.slice(0, count);
+  }
+
+  return [...keys, ...createPolicyRowKeys(prefix, count - keys.length)];
+}
+
+function toggleStage(openStageIds: Set<StageId>, stageId: StageId) {
+  const next = new Set(openStageIds);
+  if (next.has(stageId)) {
+    next.delete(stageId);
+  } else {
+    next.add(stageId);
+  }
+
+  return next;
+}
+
 export function TenantReplyPolicyEditor({ tenantId }: { tenantId: string }) {
   const [data, setData] = useState<ReplyPolicyEditorResponse | null>(null);
-  const [draftText, setDraftText] = useState("");
-  const [validation, setValidation] = useState<ReplyPolicyValidatePatchResponse | null>(null);
-  const [validatedDraftSignature, setValidatedDraftSignature] = useState<string | null>(null);
-  const [validatedBasePolicyVersion, setValidatedBasePolicyVersion] = useState<string | null>(null);
+  const [draftPolicy, setDraftPolicy] = useState<JsonObject | null>(null);
+  const [activeTab, setActiveTab] = useState<PolicyTabId>("persona");
+  const [openStageIds, setOpenStageIds] = useState<Set<StageId>>(() => new Set([STAGE_DEFS[0].id]));
+  const [selectedVoiceId, setSelectedVoiceId] = useState("default");
   const [loading, setLoading] = useState(true);
-  const [validating, setValidating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const validationRequestRef = useRef(0);
 
-  const policyJsonText = useMemo(() => toPrettyJson(data?.policy ?? {}), [data?.policy]);
-  const parsedDraft = useMemo(() => parsePolicyText(draftText), [draftText]);
   const draftPatch = useMemo(() => {
-    if (!data || parsedDraft.error !== null) {
+    if (!data || !draftPolicy) {
       return null;
     }
 
-    return buildPolicyPatch(data.policy, parsedDraft.value);
-  }, [data, parsedDraft]);
-  const draftPatchSignature = useMemo(
-    () => (draftPatch ? JSON.stringify(draftPatch.patch) : null),
-    [draftPatch],
-  );
+    return buildPolicyPatch(data.policy, draftPolicy);
+  }, [data, draftPolicy]);
   const title = tenantDisplayName(data?.tenant ?? null, tenantId);
   const hasDraftChanges = Boolean(draftPatch && hasPatchChanges(draftPatch.patch));
   const draftError =
-    parsedDraft.error ??
-    (draftPatch && draftPatch.removedPaths.length > 0
+    draftPatch && draftPatch.removedPaths.length > 0
       ? `当前 PATCH 接口不支持删除字段：${draftPatch.removedPaths.slice(0, 3).join("、")}`
-      : null);
-  const isValidated =
-    parsedDraft.error === null &&
-    draftPatchSignature !== null &&
-    validatedDraftSignature === parsedDraft.signature &&
-    validatedBasePolicyVersion === data?.policyVersion;
-  const canValidate =
-    Boolean(data?.canValidate) &&
-    Boolean(data?.canWrite) &&
-    hasDraftChanges &&
-    !draftError &&
-    !validating &&
-    !saving;
-  const canSave =
-    Boolean(data?.canWrite) && isValidated && hasDraftChanges && !validating && !saving;
-  const draftStatusText =
-    draftError ?? (isValidated ? "草稿已校验" : hasDraftChanges ? "等待校验" : "暂无变更");
-  const draftStatusClass = draftError
-    ? "operator-json-message error"
-    : isValidated
-      ? "operator-json-message success"
-      : "operator-json-message";
-  const monacoOptions = useMemo<MonacoEditor.IDiffEditorConstructionOptions>(
-    () => ({
-      automaticLayout: true,
-      contextmenu: false,
-      fontFamily:
-        "var(--font-code), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-      fontSize: 13,
-      lineHeight: 22,
-      minimap: { enabled: false },
-      originalEditable: false,
-      readOnly: !data?.canWrite || saving,
-      renderSideBySide: true,
-      renderSideBySideInlineBreakpoint: 0,
-      scrollBeyondLastLine: false,
-      wordWrap: "on",
-    }),
-    [data?.canWrite, saving],
-  );
+      : null;
+  const canSave = Boolean(data?.canWrite) && hasDraftChanges && !draftError && !saving;
+  const draftStatusText = draftError ?? (hasDraftChanges ? "有未保存修改" : "暂无变更");
+  const draftStatusClass = draftError ? "operator-json-message error" : "operator-json-message";
 
   useEffect(() => {
     let cancelled = false;
@@ -285,7 +436,8 @@ export function TenantReplyPolicyEditor({ tenantId }: { tenantId: string }) {
       .then((body) => {
         if (!cancelled) {
           setData(body);
-          setDraftText(toPrettyJson(body.policy));
+          setDraftPolicy(cloneJsonObject(body.policy));
+          setSelectedVoiceId(getDefaultVoiceId(body.policy));
           setError(null);
         }
       })
@@ -319,119 +471,43 @@ export function TenantReplyPolicyEditor({ tenantId }: { tenantId: string }) {
     };
   }, [notice]);
 
-  function updateDraftText(value: string) {
-    validationRequestRef.current += 1;
-    setDraftText(value);
-    setValidation(null);
-    setValidatedDraftSignature(null);
-    setValidatedBasePolicyVersion(null);
-    setValidating(false);
-  }
-
-  function formatDraftText() {
-    if (parsedDraft.error !== null) {
+  useEffect(() => {
+    if (!draftPolicy) {
       return;
     }
 
-    updateDraftText(toPrettyJson(parsedDraft.value));
+    const voiceIds = getIndustryVoiceIds(draftPolicy);
+    if (voiceIds.length > 0 && !voiceIds.includes(selectedVoiceId)) {
+      setSelectedVoiceId(getDefaultVoiceId(draftPolicy));
+    }
+  }, [draftPolicy, selectedVoiceId]);
+
+  function updateDraftValue(path: JsonPath, value: unknown) {
+    setDraftPolicy((current) => (current ? setPathValue(current, path, value) : current));
   }
 
-  function beforeDiffEditorMount(monaco: typeof import("monaco-editor")) {
-    monaco.editor.defineTheme(MONACO_THEME_NAME, {
-      base: "vs-dark",
-      inherit: true,
-      rules: [
-        { token: "", foreground: "f4f4f5" },
-        { token: "string.json", foreground: "ffb088" },
-        { token: "number.json", foreground: "00ff66" },
-        { token: "delimiter.bracket.json", foreground: "ff5e00" },
-      ],
-      colors: {
-        "editor.background": "#050507",
-        "editor.foreground": "#f4f4f5",
-        "editor.lineHighlightBackground": "#ff5e0014",
-        "editorGutter.background": "#050507",
-        "editorLineNumber.activeForeground": "#ff5e00",
-        "editorLineNumber.foreground": "#6d6d76",
-      },
-    });
+  function updateDraftPolicy(updater: (policy: JsonObject) => JsonObject) {
+    setDraftPolicy((current) => (current ? updater(current) : current));
   }
 
-  function onDiffEditorMount(editor: MonacoEditor.IStandaloneDiffEditor) {
-    editor.getOriginalEditor().updateOptions({
-      domReadOnly: true,
-      readOnly: true,
-    });
-    editor.getModifiedEditor().onDidChangeModelContent(() => {
-      updateDraftText(editor.getModifiedEditor().getValue());
-    });
-  }
-
-  async function validatePatch() {
-    if (!data || !draftPatch || !canValidate || parsedDraft.error !== null) {
+  function addIndustryVoice(voiceId: string) {
+    const normalized = voiceId.trim();
+    if (!normalized) {
       return;
     }
 
-    setError(null);
-    setNotice(null);
-    setValidating(true);
-
-    const requestId = validationRequestRef.current + 1;
-    validationRequestRef.current = requestId;
-    const draftSignature = parsedDraft.signature;
-    const basePolicyVersion = data.policyVersion;
-    const patch = draftPatch.patch;
-
-    try {
-      const response = await fetch(
-        `/api/operator/tenants/${encodeURIComponent(tenantId)}/reply-policy/validate-patch`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            basePolicyVersion,
-            patch,
-          }),
-        },
-      );
-
-      if (validationRequestRef.current !== requestId) {
-        return;
+    updateDraftPolicy((current) => {
+      if (getIndustryVoiceIds(current).includes(normalized)) {
+        return current;
       }
 
-      if (!response.ok) {
-        const message = await readApiError(response);
-        if (validationRequestRef.current !== requestId) {
-          return;
-        }
-
-        setError(message);
-        setValidating(false);
-        return;
-      }
-
-      const body = (await response.json()) as ReplyPolicyValidatePatchResponse;
-      if (validationRequestRef.current !== requestId) {
-        return;
-      }
-
-      setValidation(body);
-      setValidatedDraftSignature(draftSignature);
-      setValidatedBasePolicyVersion(basePolicyVersion);
-      setNotice("草稿校验完成");
-      setValidating(false);
-    } catch {
-      if (validationRequestRef.current !== requestId) {
-        return;
-      }
-
-      setError("策略草稿校验失败，请稍后重试");
-      setValidating(false);
-    }
+      return setPathValue(current, ["industryVoices", normalized], createIndustryVoice(normalized));
+    });
+    setSelectedVoiceId(normalized);
   }
 
   async function savePolicy() {
-    if (!data || !draftPatch || !canSave || parsedDraft.error !== null) {
+    if (!data || !draftPatch || !canSave) {
       return;
     }
 
@@ -461,10 +537,8 @@ export function TenantReplyPolicyEditor({ tenantId }: { tenantId: string }) {
 
       const body = (await response.json()) as ReplyPolicyEditorResponse;
       setData(body);
-      setDraftText(toPrettyJson(body.policy));
-      setValidation(null);
-      setValidatedDraftSignature(null);
-      setValidatedBasePolicyVersion(null);
+      setDraftPolicy(cloneJsonObject(body.policy));
+      setSelectedVoiceId(getDefaultVoiceId(body.policy));
       setNotice("策略配置已保存");
       setSaving(false);
     } catch {
@@ -499,20 +573,15 @@ export function TenantReplyPolicyEditor({ tenantId }: { tenantId: string }) {
     );
   }
 
-  if (!data) {
+  if (!data || !draftPolicy) {
     return null;
   }
 
+  const fieldsDisabled = !data.canWrite || saving;
+
   return (
-    <section
-      aria-busy={validating || saving}
-      aria-labelledby="reply-policy-title"
-      className="operator-shell"
-    >
-      <RequestOverlay
-        active={validating || saving}
-        label={saving ? "正在保存策略" : "正在校验草稿"}
-      />
+    <section aria-busy={saving} aria-labelledby="reply-policy-title" className="operator-shell">
+      <RequestOverlay active={saving} label="正在保存策略" />
       <StatusToast active={Boolean(notice)} message={notice ?? ""} />
 
       <Link className="operator-back-link" href="/operator">
@@ -547,12 +616,6 @@ export function TenantReplyPolicyEditor({ tenantId }: { tenantId: string }) {
         </div>
       ) : null}
 
-      {!data.canValidate ? (
-        <div className="operator-alert">
-          <AlertTriangle size={16} />
-          <span>当前客户端令牌缺少 reply-policy:validate 权限，无法校验草稿。</span>
-        </div>
-      ) : null}
       {!data.canWrite ? (
         <div className="operator-alert">
           <AlertTriangle size={16} />
@@ -566,15 +629,7 @@ export function TenantReplyPolicyEditor({ tenantId }: { tenantId: string }) {
           <code>{data.policyVersion}</code>
         </div>
         <div className="operator-save-actions">
-          <button
-            className="operator-secondary-btn"
-            disabled={!canValidate}
-            onClick={validatePatch}
-            type="button"
-          >
-            {validating ? <Loader2 className="spin" size={18} /> : <Wand2 size={18} />}
-            校验草稿
-          </button>
+          <span className={draftStatusClass}>{draftStatusText}</span>
           <button
             className="auth-submit-btn"
             disabled={!canSave}
@@ -590,147 +645,824 @@ export function TenantReplyPolicyEditor({ tenantId }: { tenantId: string }) {
       <article className="operator-panel operator-policy-panel">
         <div className="operator-policy-editor-head">
           <div className="operator-panel-title">
-            <FileDiff size={18} />
-            策略对比
-          </div>
-          <div className="operator-policy-editor-legend" aria-hidden="true">
-            <span>当前策略</span>
-            <span>修改草稿</span>
+            <SlidersHorizontal size={18} />
+            策略表单
           </div>
         </div>
-        <div
-          className={
-            draftError ? "operator-policy-monaco-shell invalid" : "operator-policy-monaco-shell"
-          }
-        >
-          <MonacoDiffEditor
-            beforeMount={beforeDiffEditorMount}
-            height="100%"
-            language="json"
-            modified={draftText}
-            modifiedModelPath={`policy://${tenantId}/${data.policyVersion}/draft.json`}
-            onMount={onDiffEditorMount}
-            options={monacoOptions}
-            original={policyJsonText}
-            originalModelPath={`policy://${tenantId}/${data.policyVersion}/current.json`}
-            theme={MONACO_THEME_NAME}
-          />
-        </div>
-        <div className="operator-json-footer">
-          <span className={draftStatusClass}>{draftStatusText}</span>
-          <button
-            className="operator-secondary-btn operator-json-format-btn"
-            disabled={!data.canWrite || saving || parsedDraft.error !== null}
-            onClick={formatDraftText}
-            type="button"
-          >
-            <Braces size={15} />
-            格式化
-          </button>
-        </div>
-        <WarningList warnings={data.warnings} />
-      </article>
 
-      {validation ? (
-        <section className="operator-policy-validation" aria-labelledby="policy-validation-title">
-          <div className="operator-panel-title">
-            <CheckCircle2 size={18} />
-            <span id="policy-validation-title">变更对比</span>
-          </div>
-          <div className="operator-policy-validation-grid">
-            <ValidationSummary validation={validation} />
-            <DiffList diff={validation.diff} />
-            <WarningList warnings={validation.warnings} />
-          </div>
-        </section>
-      ) : null}
+        <PolicyTabNav activeTab={activeTab} onSelect={setActiveTab} />
+
+        <div className="operator-policy-form-shell">
+          {activeTab === "persona" ? (
+            <PersonaPolicySection
+              disabled={fieldsDisabled}
+              draftPolicy={draftPolicy}
+              onChange={updateDraftValue}
+            />
+          ) : null}
+          {activeTab === "stages" ? (
+            <StagePolicySection
+              disabled={fieldsDisabled}
+              draftPolicy={draftPolicy}
+              onChange={updateDraftValue}
+              onOpenStageChange={(stageId) =>
+                setOpenStageIds((current) => toggleStage(current, stageId))
+              }
+              openStageIds={openStageIds}
+            />
+          ) : null}
+          {activeTab === "industry" ? (
+            <IndustryPolicySection
+              disabled={fieldsDisabled}
+              draftPolicy={draftPolicy}
+              onAddVoice={addIndustryVoice}
+              onChange={updateDraftValue}
+              onSelectedVoiceChange={setSelectedVoiceId}
+              selectedVoiceId={selectedVoiceId}
+            />
+          ) : null}
+          {activeTab === "rules" ? (
+            <RulesPolicySection
+              disabled={fieldsDisabled}
+              draftPolicy={draftPolicy}
+              onChange={updateDraftValue}
+            />
+          ) : null}
+          {activeTab === "guards" ? (
+            <OutputGuardsPolicySection
+              disabled={fieldsDisabled}
+              draftPolicy={draftPolicy}
+              onChange={updateDraftValue}
+            />
+          ) : null}
+        </div>
+      </article>
     </section>
   );
 }
 
-function WarningList({ warnings }: { warnings: unknown[] }) {
-  if (warnings.length === 0) {
-    return (
-      <div className="operator-policy-state">
-        <CheckCircle2 size={16} />
-        <span>无 warnings</span>
-      </div>
-    );
+function PolicyTabNav({
+  activeTab,
+  onSelect,
+}: {
+  activeTab: PolicyTabId;
+  onSelect: (tab: PolicyTabId) => void;
+}) {
+  return (
+    <div aria-label="策略配置分组" className="operator-policy-tabs" role="tablist">
+      {POLICY_TABS.map((tab) => {
+        const Icon = tab.icon;
+        const active = activeTab === tab.id;
+
+        return (
+          <button
+            aria-selected={active}
+            className={active ? "operator-policy-tab is-active" : "operator-policy-tab"}
+            key={tab.id}
+            onClick={() => onSelect(tab.id)}
+            role="tab"
+            type="button"
+          >
+            <Icon size={17} />
+            <span>{tab.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+type PolicySectionProps = {
+  disabled: boolean;
+  draftPolicy: JsonObject;
+  onChange: (path: JsonPath, value: unknown) => void;
+};
+
+function PersonaPolicySection({ disabled, draftPolicy, onChange }: PolicySectionProps) {
+  return (
+    <div className="operator-policy-section">
+      <SelectPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="回复长度"
+        onChange={onChange}
+        options={LENGTH_OPTIONS}
+        path={["persona", "length"]}
+      />
+      {PERSONA_TEXT_FIELDS.map((field) => (
+        <TextPolicyField
+          disabled={disabled}
+          draftPolicy={draftPolicy}
+          key={field.label}
+          label={field.label}
+          multiline={
+            field.path[1] === "companyBackground" ||
+            field.path[1] === "empathyStrategy" ||
+            field.path[1] === "questionStyle"
+          }
+          onChange={onChange}
+          path={field.path}
+        />
+      ))}
+    </div>
+  );
+}
+
+function StagePolicySection({
+  disabled,
+  draftPolicy,
+  onChange,
+  onOpenStageChange,
+  openStageIds,
+}: PolicySectionProps & {
+  onOpenStageChange: (stageId: StageId) => void;
+  openStageIds: Set<StageId>;
+}) {
+  return (
+    <div className="operator-policy-accordion">
+      {STAGE_DEFS.map((stage) => {
+        const open = openStageIds.has(stage.id);
+
+        return (
+          <section className="operator-policy-accordion-item" key={stage.id}>
+            <button
+              aria-expanded={open}
+              className="operator-policy-accordion-trigger"
+              onClick={() => onOpenStageChange(stage.id)}
+              type="button"
+            >
+              <span>
+                <code>{stage.id}</code>
+                <strong>{stage.label}</strong>
+              </span>
+              <ChevronDown size={18} />
+            </button>
+            {open ? (
+              <div className="operator-policy-accordion-body">
+                <TextPolicyField
+                  disabled={disabled}
+                  draftPolicy={draftPolicy}
+                  label="阶段定义"
+                  multiline
+                  onChange={onChange}
+                  path={["stageGoals", stage.id, "description"]}
+                />
+                <TextPolicyField
+                  disabled={disabled}
+                  draftPolicy={draftPolicy}
+                  label="主要目标"
+                  multiline
+                  onChange={onChange}
+                  path={["stageGoals", stage.id, "primaryGoal"]}
+                />
+                <ArrayPolicyField
+                  disabled={disabled}
+                  draftPolicy={draftPolicy}
+                  label="成功标准"
+                  onChange={onChange}
+                  path={["stageGoals", stage.id, "successCriteria"]}
+                  placeholder="新增成功标准"
+                />
+                <TextPolicyField
+                  disabled={disabled}
+                  draftPolicy={draftPolicy}
+                  label="推进策略 (CTA)"
+                  multiline
+                  onChange={onChange}
+                  path={["stageGoals", stage.id, "ctaStrategy"]}
+                />
+                <ArrayPolicyField
+                  disabled={disabled}
+                  draftPolicy={draftPolicy}
+                  label="禁止行为"
+                  onChange={onChange}
+                  path={["stageGoals", stage.id, "disallowedActions"]}
+                  placeholder="新增禁止行为"
+                />
+              </div>
+            ) : null}
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
+function IndustryPolicySection({
+  disabled,
+  draftPolicy,
+  onAddVoice,
+  onChange,
+  onSelectedVoiceChange,
+  selectedVoiceId,
+}: PolicySectionProps & {
+  onAddVoice: (voiceId: string) => void;
+  onSelectedVoiceChange: (voiceId: string) => void;
+  selectedVoiceId: string;
+}) {
+  const [newVoiceId, setNewVoiceId] = useState("");
+  const voiceOptions = getIndustryVoiceIds(draftPolicy).map((voiceId) => ({
+    label: voiceId,
+    value: voiceId,
+  }));
+  const activeVoiceId = voiceOptions.some((option) => option.value === selectedVoiceId)
+    ? selectedVoiceId
+    : (voiceOptions[0]?.value ?? "default");
+
+  function addVoice() {
+    const normalized = newVoiceId.trim();
+    if (!normalized) {
+      return;
+    }
+
+    onAddVoice(normalized);
+    setNewVoiceId("");
   }
 
-  const seenWarnings = new Map<string, number>();
-  const warningItems = warnings.map((warning) => {
-    const text = formatWarning(warning);
-    const count = seenWarnings.get(text) ?? 0;
-    seenWarnings.set(text, count + 1);
-
-    return {
-      key: count === 0 ? text : `${text}:${count}`,
-      text,
-    };
-  });
-
   return (
-    <div className="operator-policy-warning-list">
-      {warningItems.map((warning) => (
-        <div className="operator-alert" key={warning.key}>
-          <AlertTriangle size={15} />
-          <span>{warning.text}</span>
+    <div className="operator-policy-section">
+      <div className="operator-policy-voice-toolbar">
+        <label>
+          <span>当前语境 ID</span>
+          <select
+            className="operator-policy-input"
+            onChange={(event) => onSelectedVoiceChange(event.currentTarget.value)}
+            value={activeVoiceId}
+          >
+            {voiceOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="operator-policy-add-inline">
+          <input
+            className="operator-policy-input"
+            disabled={disabled}
+            onChange={(event) => setNewVoiceId(event.currentTarget.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                addVoice();
+              }
+            }}
+            placeholder="voice_id"
+            value={newVoiceId}
+          />
+          <button
+            className="operator-secondary-btn"
+            disabled={disabled || !newVoiceId.trim()}
+            onClick={addVoice}
+            type="button"
+          >
+            <Plus size={15} />
+            新增语境
+          </button>
         </div>
-      ))}
-    </div>
-  );
-}
-
-function ValidationSummary({ validation }: { validation: ReplyPolicyValidatePatchResponse }) {
-  return (
-    <div className="operator-policy-summary">
-      <span>
-        <strong>{validation.diff.length}</strong>
-        <small>变更字段</small>
-      </span>
-      <span>
-        <strong>{validation.warnings.length}</strong>
-        <small>warnings</small>
-      </span>
-      <span>
-        <strong>{validation.draftPolicyVersion}</strong>
-        <small>草稿版本</small>
-      </span>
-    </div>
-  );
-}
-
-function DiffList({ diff }: { diff: ReplyPolicyDiff[] }) {
-  if (diff.length === 0) {
-    return (
-      <div className="operator-policy-state">
-        <CheckCircle2 size={16} />
-        <span>无字段变更</span>
       </div>
+
+      <SelectPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="默认语境"
+        onChange={onChange}
+        options={voiceOptions}
+        path={["defaultIndustryVoiceId"]}
+      />
+
+      {INDUSTRY_TEXT_FIELDS.map((field) => (
+        <TextPolicyField
+          disabled={disabled}
+          draftPolicy={draftPolicy}
+          key={`${activeVoiceId}.${field.path}`}
+          label={field.label}
+          multiline={field.multiline}
+          onChange={onChange}
+          path={["industryVoices", activeVoiceId, field.path]}
+        />
+      ))}
+
+      <ArrayPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="行业术语"
+        onChange={onChange}
+        path={["industryVoices", activeVoiceId, "jargon"]}
+        placeholder="新增术语"
+      />
+      <ArrayPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="风格关键词"
+        onChange={onChange}
+        path={["industryVoices", activeVoiceId, "styleKeywords"]}
+        placeholder="新增关键词"
+      />
+      <ArrayPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="禁忌用语"
+        onChange={onChange}
+        path={["industryVoices", activeVoiceId, "tabooPhrases"]}
+        placeholder="新增禁忌用语"
+      />
+      <ArrayPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="引导原则"
+        onChange={onChange}
+        path={["industryVoices", activeVoiceId, "guidance"]}
+        placeholder="新增原则"
+      />
+    </div>
+  );
+}
+
+function RulesPolicySection({ disabled, draftPolicy, onChange }: PolicySectionProps) {
+  return (
+    <div className="operator-policy-section">
+      <HardRulesField disabled={disabled} draftPolicy={draftPolicy} onChange={onChange} />
+
+      <div className="operator-policy-section-divider" />
+
+      <SelectPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="FactGate 模式"
+        onChange={onChange}
+        options={FACT_GATE_MODE_OPTIONS}
+        path={["factGate", "mode"]}
+      />
+      <SelectPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="缺事实回退策略"
+        onChange={onChange}
+        options={FALLBACK_OPTIONS}
+        path={["factGate", "fallbackBehavior"]}
+      />
+      <ArrayPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="可验证声明类型"
+        onChange={onChange}
+        path={["factGate", "verifiableClaimTypes"]}
+        placeholder="新增类型"
+      />
+      <ArrayPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="缺事实时禁止内容"
+        onChange={onChange}
+        path={["factGate", "forbiddenWhenMissingFacts"]}
+        placeholder="新增禁止内容"
+      />
+
+      <div className="operator-policy-section-divider" />
+
+      <BooleanPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="启用年龄 Gate"
+        onChange={onChange}
+        path={["qualificationPolicy", "age", "enabled"]}
+      />
+      <BooleanPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="允许透露年龄区间"
+        onChange={onChange}
+        path={["qualificationPolicy", "age", "revealRange"]}
+      />
+      <TextPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="不匹配策略"
+        multiline
+        onChange={onChange}
+        path={["qualificationPolicy", "age", "failStrategy"]}
+      />
+      <TextPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="信息不足策略"
+        multiline
+        onChange={onChange}
+        path={["qualificationPolicy", "age", "unknownStrategy"]}
+      />
+      <TextPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="匹配通过策略"
+        multiline
+        onChange={onChange}
+        path={["qualificationPolicy", "age", "passStrategy"]}
+      />
+      <BooleanPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="不匹配时允许转推荐"
+        onChange={onChange}
+        path={["qualificationPolicy", "age", "allowRedirect"]}
+      />
+      <SelectPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="转推荐优先级"
+        onChange={onChange}
+        options={PRIORITY_OPTIONS}
+        path={["qualificationPolicy", "age", "redirectPriority"]}
+      />
+    </div>
+  );
+}
+
+function OutputGuardsPolicySection({ disabled, draftPolicy, onChange }: PolicySectionProps) {
+  return (
+    <div className="operator-policy-section">
+      <NumberPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="最少模式最大提问数"
+        onChange={onChange}
+        path={["outputGuards", "maxQuestionsByMode", "minimal"]}
+      />
+      <NumberPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="聚焦模式最大提问数"
+        onChange={onChange}
+        path={["outputGuards", "maxQuestionsByMode", "focused"]}
+      />
+      <ArrayPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="阻断审计短语"
+        onChange={onChange}
+        path={["outputGuards", "blockedAuditPhrases"]}
+        placeholder="新增短语"
+      />
+      <BooleanPolicyField
+        disabled={disabled}
+        draftPolicy={draftPolicy}
+        label="首轮阻断具体事实"
+        onChange={onChange}
+        path={["outputGuards", "blockFirstTurnSpecificFacts"]}
+      />
+    </div>
+  );
+}
+
+function TextPolicyField({
+  disabled,
+  draftPolicy,
+  label,
+  multiline = false,
+  onChange,
+  path,
+}: PolicySectionProps & {
+  label: string;
+  multiline?: boolean;
+  path: JsonPath;
+}) {
+  const draftValue = getStringAt(draftPolicy, path);
+
+  return (
+    <PolicyField label={label}>
+      {multiline ? (
+        <textarea
+          aria-label={label}
+          className="operator-policy-input"
+          disabled={disabled}
+          onChange={(event) => onChange(path, event.currentTarget.value)}
+          rows={3}
+          value={draftValue}
+        />
+      ) : (
+        <input
+          aria-label={label}
+          className="operator-policy-input"
+          disabled={disabled}
+          onChange={(event) => onChange(path, event.currentTarget.value)}
+          value={draftValue}
+        />
+      )}
+    </PolicyField>
+  );
+}
+
+function SelectPolicyField({
+  disabled,
+  draftPolicy,
+  label,
+  onChange,
+  options,
+  path,
+}: PolicySectionProps & {
+  label: string;
+  options: SelectOption[];
+  path: JsonPath;
+}) {
+  const draftValue = getStringAt(draftPolicy, path);
+
+  return (
+    <PolicyField label={label}>
+      <select
+        aria-label={label}
+        className="operator-policy-input"
+        disabled={disabled}
+        onChange={(event) => onChange(path, event.currentTarget.value)}
+        value={draftValue}
+      >
+        {draftValue ? null : <option value="">未设置</option>}
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </PolicyField>
+  );
+}
+
+function BooleanPolicyField({
+  disabled,
+  draftPolicy,
+  label,
+  onChange,
+  path,
+}: PolicySectionProps & {
+  label: string;
+  path: JsonPath;
+}) {
+  const draftValue = getBooleanAt(draftPolicy, path);
+
+  return (
+    <PolicyField label={label}>
+      <select
+        aria-label={label}
+        className="operator-policy-input"
+        disabled={disabled}
+        onChange={(event) => onChange(path, event.currentTarget.value === "true")}
+        value={String(draftValue)}
+      >
+        <option value="true">启用</option>
+        <option value="false">停用</option>
+      </select>
+    </PolicyField>
+  );
+}
+
+function NumberPolicyField({
+  disabled,
+  draftPolicy,
+  label,
+  onChange,
+  path,
+}: PolicySectionProps & {
+  label: string;
+  path: JsonPath;
+}) {
+  const draftValue = getNumberAt(draftPolicy, path);
+
+  return (
+    <PolicyField label={label}>
+      <input
+        aria-label={label}
+        className="operator-policy-input"
+        disabled={disabled}
+        min={0}
+        onChange={(event) => {
+          const nextValue = Number(event.currentTarget.value);
+          onChange(path, Number.isFinite(nextValue) ? Math.max(0, nextValue) : 0);
+        }}
+        type="number"
+        value={draftValue}
+      />
+    </PolicyField>
+  );
+}
+
+function ArrayPolicyField({
+  disabled,
+  draftPolicy,
+  label,
+  onChange,
+  path,
+  placeholder,
+}: PolicySectionProps & {
+  label: string;
+  path: JsonPath;
+  placeholder: string;
+}) {
+  const [inputValue, setInputValue] = useState("");
+  const draftValues = getStringArrayAt(draftPolicy, path);
+  const [itemKeys, setItemKeys] = useState(() => createPolicyRowKeys("array", draftValues.length));
+  const keyedDraftValues = useMemo(
+    () =>
+      draftValues.map((value, index) => ({
+        index,
+        key: itemKeys[index] ?? createPolicyRowKey("array"),
+        value,
+      })),
+    [draftValues, itemKeys],
+  );
+
+  useEffect(() => {
+    setItemKeys((current) => syncPolicyRowKeys(current, draftValues.length, "array"));
+  }, [draftValues.length]);
+
+  function addValue() {
+    const nextValue = inputValue.trim();
+    if (!nextValue) {
+      return;
+    }
+
+    onChange(path, [...draftValues, nextValue]);
+    setItemKeys((current) => [...current, createPolicyRowKey("array")]);
+    setInputValue("");
+  }
+
+  function updateValue(index: number, value: string) {
+    onChange(
+      path,
+      draftValues.map((item, itemIndex) => (itemIndex === index ? value : item)),
     );
   }
 
+  function removeValue(index: number) {
+    onChange(
+      path,
+      draftValues.filter((_, itemIndex) => itemIndex !== index),
+    );
+    setItemKeys((current) => current.filter((_, itemIndex) => itemIndex !== index));
+  }
+
   return (
-    <div className="operator-policy-compare-list">
-      {diff.map((item) => (
-        <article className="operator-policy-compare-item" key={item.path}>
-          <header>
-            <strong>{item.path}</strong>
-            <span>字段变更</span>
-          </header>
-          <div className="operator-policy-compare-columns">
-            <div className="operator-policy-compare-side before">
-              <span>当前策略</span>
-              <code>{formatDiffValue(item.before)}</code>
-            </div>
-            <div className="operator-policy-compare-side after">
-              <span>修改后</span>
-              <code>{formatDiffValue(item.after)}</code>
-            </div>
+    <PolicyField label={label}>
+      <div className="operator-policy-array-editor">
+        {keyedDraftValues.map(({ index, key, value }) => (
+          <div className="operator-policy-array-row" key={key}>
+            <input
+              aria-label={`${label} ${index + 1}`}
+              className="operator-policy-input"
+              disabled={disabled}
+              onChange={(event) => updateValue(index, event.currentTarget.value)}
+              value={value}
+            />
+            <button
+              aria-label={`删除${label}`}
+              className="operator-icon-btn"
+              disabled={disabled}
+              onClick={() => removeValue(index)}
+              type="button"
+            >
+              <Trash2 size={15} />
+            </button>
           </div>
-        </article>
-      ))}
+        ))}
+        <div className="operator-policy-add-inline">
+          <input
+            className="operator-policy-input"
+            disabled={disabled}
+            onBlur={addValue}
+            onChange={(event) => setInputValue(event.currentTarget.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                addValue();
+              }
+            }}
+            placeholder={placeholder}
+            value={inputValue}
+          />
+          <button
+            className="operator-secondary-btn"
+            disabled={disabled || !inputValue.trim()}
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={addValue}
+            type="button"
+          >
+            <Plus size={15} />
+            添加
+          </button>
+        </div>
+      </div>
+    </PolicyField>
+  );
+}
+
+function HardRulesField({ disabled, draftPolicy, onChange }: PolicySectionProps) {
+  const draftRules = getRules(draftPolicy);
+  const [ruleKeys, setRuleKeys] = useState(() => createPolicyRowKeys("rule", draftRules.length));
+  const keyedDraftRules = useMemo(
+    () =>
+      draftRules.map((rule, index) => ({
+        index,
+        key: ruleKeys[index] ?? createPolicyRowKey("rule"),
+        rule,
+      })),
+    [draftRules, ruleKeys],
+  );
+
+  useEffect(() => {
+    setRuleKeys((current) => syncPolicyRowKeys(current, draftRules.length, "rule"));
+  }, [draftRules.length]);
+
+  function updateRule(index: number, patch: Partial<HardConstraintRule>) {
+    onChange(
+      ["hardConstraints", "rules"],
+      draftRules.map((rule, itemIndex) => (itemIndex === index ? { ...rule, ...patch } : rule)),
+    );
+  }
+
+  function removeRule(index: number) {
+    onChange(
+      ["hardConstraints", "rules"],
+      draftRules.filter((_, itemIndex) => itemIndex !== index),
+    );
+    setRuleKeys((current) => current.filter((_, itemIndex) => itemIndex !== index));
+  }
+
+  return (
+    <PolicyField label="红线规则">
+      <div className="operator-policy-rule-editor">
+        {keyedDraftRules.map(({ index, key, rule }) => (
+          <div className="operator-policy-rule-card" key={key}>
+            <div className="operator-policy-rule-head">
+              <input
+                aria-label="规则 ID"
+                className="operator-policy-input"
+                disabled={disabled}
+                onChange={(event) => updateRule(index, { id: event.currentTarget.value })}
+                value={rule.id}
+              />
+              <select
+                aria-label="规则等级"
+                className="operator-policy-input"
+                disabled={disabled}
+                onChange={(event) => updateRule(index, { severity: event.currentTarget.value })}
+                value={rule.severity}
+              >
+                {SEVERITY_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <button
+                aria-label="删除红线规则"
+                className="operator-icon-btn"
+                disabled={disabled || draftRules.length <= 1}
+                onClick={() => removeRule(index)}
+                type="button"
+              >
+                <Trash2 size={15} />
+              </button>
+            </div>
+            <textarea
+              aria-label="规则内容"
+              className="operator-policy-input"
+              disabled={disabled}
+              onChange={(event) => updateRule(index, { rule: event.currentTarget.value })}
+              rows={2}
+              value={rule.rule}
+            />
+          </div>
+        ))}
+        <button
+          className="operator-secondary-btn"
+          disabled={disabled}
+          onClick={() => {
+            setRuleKeys((current) => [...current, createPolicyRowKey("rule")]);
+            onChange(
+              ["hardConstraints", "rules"],
+              [
+                ...draftRules,
+                {
+                  id: nextRuleId(draftRules),
+                  rule: "",
+                  severity: "high",
+                },
+              ],
+            );
+          }}
+          type="button"
+        >
+          <Plus size={15} />
+          添加规则
+        </button>
+      </div>
+    </PolicyField>
+  );
+}
+
+function PolicyField({ children, label }: { children: ReactNode; label: string }) {
+  return (
+    <div className="operator-policy-field">
+      <span className="operator-policy-field-label">{label}</span>
+      {children}
     </div>
   );
 }
