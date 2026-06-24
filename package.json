@@ -22,10 +22,12 @@
     "check": "biome check && tsc --noEmit"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@node-rs/argon2": "^2.0.2",
     "@prisma/client": "^6.19.3",
     "jose": "^6.2.3",
     "lucide-react": "^1.17.0",
+    "monaco-editor": "^0.55.1",
     "next": "^16.2.6",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",

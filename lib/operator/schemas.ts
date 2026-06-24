@@ -9,6 +9,17 @@ const optionalTrimmed = z
   .transform((value) => (value ? value : undefined));
 
 const trimmedList = z.array(z.string().trim().min(1)).optional();
+const jsonObject = z.custom<Record<string, unknown>>(
+  (value) => typeof value === "object" && value !== null && !Array.isArray(value),
+  "patch 必须是 JSON 对象",
+);
+const replyPolicyPatchReason = z.preprocess((value) => {
+  if (typeof value === "string" && value.trim()) {
+    return value.trim();
+  }
+
+  return "操作台策略配置更新";
+}, z.string().min(1));
 
 const RecruiterBindingSchema = z
   .object({
@@ -55,5 +66,21 @@ export const UpdateTenantConfigSchema = z
       })
       .strict()
       .optional(),
+  })
+  .strict();
+
+export const ValidateReplyPolicyPatchSchema = z
+  .object({
+    basePolicyVersion: z.string().trim().min(1, "缺少策略版本"),
+    hypothesis: optionalTrimmed,
+    patch: jsonObject,
+  })
+  .strict();
+
+export const PatchReplyPolicySchema = z
+  .object({
+    basePolicyVersion: z.string().trim().min(1, "缺少策略版本"),
+    reason: replyPolicyPatchReason,
+    patch: jsonObject,
   })
   .strict();
