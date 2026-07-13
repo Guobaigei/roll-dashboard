@@ -1,105 +1,61 @@
-import versions from "../public/roll-versions.json";
 import { InteractiveCLI } from "./InteractiveCLI";
 
-type SkillArchiveMetadata = {
-  sha256?: string | null;
-  sha256Short?: string | null;
-  sizeLabel?: string | null;
-};
-
-type RollVersionManifest = typeof versions & {
-  skillArchive?: SkillArchiveMetadata;
-};
-
 export function HeroSection() {
-  const manifest = versions as RollVersionManifest;
-  const stableVersion = `STABLE_V${manifest.core}`;
-  const skillArchive = manifest.skillArchive;
-  const skillSizeLabel = skillArchive?.sizeLabel ?? "UNAVAILABLE";
-  const skillSha256Label = skillArchive?.sha256Short ?? "UNAVAILABLE";
-
   return (
     <section className="hero-section" id="top" aria-labelledby="hero-title">
       <div className="hero-grid-layout">
         {/* Left Copy Panel */}
         <div className="hero-copy-panel">
-          <p className="eyebrow">INTRODUCING ROLL COMMANDER</p>
+          <p className="eyebrow">ENTERPRISE AGENT INTELLIGENCE</p>
           <h1 id="hero-title" className="hero-main-title">
-            <span>面向灵工招聘的</span>
-            <span className="gradient-highlight">高并发 AI 编排内核</span>
+            <span>把企业业务能力</span>
+            <span className="gradient-highlight">连接成可执行的 Agent 智能系统</span>
           </h1>
           <p className="hero-slogan">
-            超级大脑统筹，专业子 Agent 执行，打造坚不可摧的招聘自动化防线。
+            Roll 让业务人员、通用 AI Agent
+            与现有系统共享同一套专业能力：理解目标、协调执行、确认关键操作，并持续推进到结果。
           </p>
 
           <div className="hero-commercial-values">
             <div className="value-item">
               <span className="value-bullet">❯</span>
               <p>
-                <strong>无侵入私域接驳</strong>
-                ：不强行改写系统。由外部 IM 工具（如飞书等）联动触发，一句话流式调度本地 Chrome
-                隔离用户配置执行，数据完全不出本地。
+                <strong>持续推进，不止回答</strong>
+                ：围绕最终目标组织多个专业 Agent，处理过程变化，并在失败时继续寻找可行路径。
               </p>
             </div>
             <div className="value-item">
               <span className="value-bullet">❯</span>
               <p>
-                <strong>硬核物理防封</strong>
-                ：行为仿真级抗风控接管与滑块告警中断机制，高并发多账号隔离运行，业务稳定率提升
-                300%。
+                <strong>连接现有业务，无需推倒重来</strong>
+                ：把企业已有的系统、数据与流程逐步接入 Roll，一次建设，可被人员、Agent
+                和自动化流程共同复用。
               </p>
             </div>
             <div className="value-item">
               <span className="value-bullet">❯</span>
               <p>
-                <strong>Reply Authority 话术过签</strong>
-                ：自动关联云端企业知识，杜绝低级回复事故，新人招人效率等同 3 年老猎头。
+                <strong>关键操作始终可控</strong>
+                ：执行前可确认、运行中可中断、任务可恢复，让企业自动化既能持续推进，也保留必要的人为控制。
               </p>
             </div>
           </div>
 
           <div className="hero-actions-row">
-            <a className="primary-action-btn" href="#marketplace">
-              进入 AGENT 市场
+            <a className="primary-action-btn" href="#quickstart">
+              2 分钟快速部署
             </a>
-            <a className="secondary-action-btn" href="#architecture">
-              了解架构体系
+            <a className="secondary-action-btn" href="#use-cases">
+              查看企业应用场景
             </a>
-          </div>
-
-          <div className="skill-download-box">
-            <div className="skill-header">
-              <span className="skill-download-tag">ORCHESTRATOR_INTEGRATION | 集成中台</span>
-              <span className="skill-version-tag">{stableVersion}</span>
-            </div>
-            <p className="skill-download-text">
-              <strong>双向编排协同</strong>：将 Roll
-              内核作为技能热插拔注入到飞书、微信机器人、Cursor 或是 Claude Code 中。
-            </p>
-            <div className="skill-action-row">
-              <a
-                href="/openclaw-roll-core-skill-latest.zip"
-                download
-                className="skill-action-btn-link"
-              >
-                <span className="btn-icon">↓</span>
-                <span className="btn-text">PULL LATEST SKILL (.ZIP)</span>
-              </a>
-              <div className="skill-meta-specs">
-                <span>SIZE: {skillSizeLabel}</span>
-                <span title={skillArchive?.sha256 ? `SHA-256: ${skillArchive.sha256}` : undefined}>
-                  SHA-256: {skillSha256Label}
-                </span>
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Right Interactive Onboarding Terminal */}
-        <div className="hero-terminal-panel">
+        <div className="hero-terminal-panel" id="quickstart">
           <div className="terminal-onboarding-caption">
             <span className="onboarding-indicator" />
-            <span>PROGRESSIVE_CLI_ONBOARDING | 快速部署引导</span>
+            <span>ENTERPRISE_AGENT_ONBOARDING | 企业快速部署</span>
           </div>
           <InteractiveCLI />
         </div>

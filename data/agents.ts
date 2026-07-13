@@ -5,7 +5,7 @@ export type Agent = {
   plainSummary: string;
   examplePrompt: string;
   businessOutcome: string;
-  accent: "orange" | "blue" | "green" | "purple";
+  accent: "orange" | "blue" | "green" | "purple" | "teal";
   category: string;
   tags: string[];
   installCommand: string;
@@ -18,47 +18,43 @@ export const agents: Agent[] = [
     id: "browser-use-agent",
     roleName: "浏览器操控助手",
     overview:
-      "采用行为仿真级防封技术接管本机 Chrome 浏览器。自动登录第三方招聘平台，执行批量读取未读、筛选打招呼、简历画像解析以及主动联系方式交换。内置滑块验证码智能检测，安全中断保护您的账号产值。",
-    plainSummary:
-      "行为仿真级安全操控 Chrome 浏览器，秒级并发处理第三方招聘平台未读消息，无侵入式自动获取联系方式。",
+      "在受控的本机 Chrome 运行时中操作招聘平台，执行消息读取、候选人筛选、打招呼、画像解析和联系方式交换。遇到滑块验证码等需要人工处理的状态时主动中断并提示，避免任务在未知状态下继续推进。",
+    plainSummary: "将招聘平台中的重复浏览器操作交给专业 Agent，并在需要人工介入时明确暂停。",
     examplePrompt: "roll run browser-use-agent read_messages --input-json '{\"onlyUnread\":true}'",
-    businessOutcome:
-      "⚡️ 告别枯燥的人工手动翻页与打招呼，实现高频高危操作的物理抗封与 24 小时高并发在线。",
+    businessOutcome: "减少人工翻页、筛选与重复操作，让招聘团队把时间集中在候选人判断和后续转化。",
     accent: "orange",
-    category: "网页自动化与账号托管",
-    tags: ["强抗风控接管", "获取联系方式", "安全风控中断", "并发账号"],
+    category: "浏览器业务操作",
+    tags: ["受控浏览器运行时", "候选人消息处理", "验证码检测", "多实例配置"],
     installCommand: "roll agent install @roll-agent/browser-use-agent",
     runCommand: "roll run browser-use-agent [tool_name]",
-    runtimeDetails: "物理常驻后台服务 (HTTP-streamable:3100) | Chrome 隔离用户配置",
+    runtimeDetails: "独立托管服务 (streamable HTTP) | Chrome 隔离用户配置 | 多实例路由",
   },
   {
     id: "smart-reply-agent",
     roleName: "智能回复助手",
     overview:
-      "智能回复逻辑的核心大脑。本地 Agent 仅作为数据安全搬运与执行网关，核心回复逻辑深度接驳 Reply Authority Service 战略回复中台。在云端秒级加载企业岗位、排班、薪资、门店定位等上下文知识，自动应用过滤与初筛规则（如过滤学生、限制年龄等），并自动签发带高强度安全防伪签名的回复内容。",
-    plainSummary:
-      "接驳云端 Reply Authority，全自动执行匹配策略，高精稳健签发无错、统一的企业级应答。",
+      "连接 Reply Authority Service，根据企业岗位、排班、薪资、门店定位等业务上下文生成已签名回复，并应用企业配置的过滤与初筛规则。",
+    plainSummary: "让不同招聘顾问复用同一套企业知识与回复策略，减少口径不一致和重复查询。",
     examplePrompt:
       'roll run smart-reply-agent generate_reply --input-json \'{"conversationId":"c129", "message":"几点上班"}\'',
-    businessOutcome:
-      "🛡️ 杜绝新招聘顾问的低级沟通失误，自动过滤不符资质，将优秀招聘话术复制给 100% 流程。",
+    businessOutcome: "降低常见沟通错误与知识遗漏风险，让企业回复口径更一致、业务规则更容易复用。",
     accent: "blue",
     category: "智能回复中台与政策网关",
-    tags: ["Reply Authority", "自动话术过签", "业务知识检索", "资质准入网关"],
+    tags: ["Reply Authority", "签名回复", "业务知识检索", "初筛规则"],
     installCommand: "roll agent install @roll-agent/smart-reply-agent",
     runCommand: "roll run smart-reply-agent [tool_name]",
-    runtimeDetails: "按需调用微进程 (stdio) | 零常驻内存开销 | 强加密通道",
+    runtimeDetails: "按需运行 (stdio) | 依赖 Reply Authority Service | Bearer Token 鉴权",
   },
   {
     id: "reply-policy-tuner-agent",
     roleName: "回复策略调优师",
     overview:
-      "回复策略的 RSI 编排与安全调优大脑。通过 stdio 接入 Roll 指挥官，以 12 个 MCP Tool 托管租户级回复策略的全生命周期：补丁校验 → 话术预览 → 双路评估 → 有条件写入。所有策略变更必须先经 Reply Authority Service (RAS) 评估，并受本地 Evaluate 门禁约束（评估通过后须在 TTL 内方可落库）；Hard Gate、事实核查与冻结评分 Judge 全程固定开启，从源头杜绝未经评估的策略直接上线。",
+      "通过校验、话术预览、双路评估和有条件写入管理租户级回复策略。策略更新需要先经过 Reply Authority Service 评估，并满足本地 Evaluate 门禁要求后才能写入。",
     plainSummary: "以「校验—预览—双路评估—有条件写入」闭环安全编排租户级回复策略，评估不过不落库。",
     examplePrompt:
       'roll run reply-policy-tuner-agent get_policy --input-json \'{"tenantId":"<tenant-id>"}\'',
     businessOutcome:
-      "🧪 让改策略像灰度发布一样可控：每次调整先评估再上线，杜绝拍脑袋改话术造成的线上事故与合规风险。",
+      "让策略调整在写入前拥有预览和评估依据，降低未经验证的业务规则直接上线所带来的风险。",
     accent: "purple",
     category: "策略 RSI 编排与评估门禁",
     tags: ["Reply Authority", "双路评估门禁", "有条件写入", "Judge 安全护栏"],
@@ -68,21 +64,22 @@ export const agents: Agent[] = [
       "按需调用微进程 (stdio) | 依赖 Reply Authority Service + Bearer Token | Evaluate 门禁 TTL 保护",
   },
   {
-    id: "notify-agent",
-    roleName: "消息通知助手",
+    id: "octopus-agent",
+    roleName: "丸子 Agent",
     overview:
-      "极简、高效的多端通知分发哨兵。当前版本提供飞书自定义群机器人 (Webhook) 数据流推送服务。当 `browser-use-agent` 自动完成联系方式获取、聊天触发验证码报错等核心业务流状态变更时，该哨兵即时将状态及结构化文本内容广播给后端团队群。",
+      "对接 Sponge MCP Server 的自然语言查数助手。通过 stdio 接入 Roll 指挥官，以 Schema Cache、MCP Sampling 与三步 SQL 管线（get_schema → validate_sql → execute_sql）把业务问题译成安全可执行查询。内置 SQL Guard：仅允许单条 SELECT 且必须带 LIMIT；全链路 Audit Log 记录 trace、session、SQL hash 与执行摘要，权限范围由 Sponge 在 execute_sql 阶段按 Token 统一补全。",
     plainSummary:
-      "飞书群机器人单向 Webhook 哨兵，在成功获取联系方式或滑块报错时，毫秒级通知招聘群跟进。",
+      "自然语言提问即可查 Sponge 业务数据：本地缓存 schema、采样生成 SQL，且强制 SELECT + LIMIT 护栏。",
     examplePrompt:
-      'roll run notify-agent send_feishu_message --input-json \'{"text":"[Roll] 候选人李四已自动换取联系方式成功"}\'',
+      'roll run octopus-agent query_sponge --input-json \'{"question":"查询我能看到的品牌列表","originalQuestion":"查询我能看到的品牌列表"}\'',
     businessOutcome:
-      "📢 全流程透明，无漏回漏跟。负责人不用反复查岗进度，线下招聘顾问即时衔接私域转化。",
-    accent: "green",
-    category: "状态广播与即时即达哨兵",
-    tags: ["飞书 Webhook", "单向出站通知", "异常自动报警", "线下私域流接驳"],
-    installCommand: "roll agent install @roll-agent/notify-agent",
-    runCommand: "roll run notify-agent [tool_name]",
-    runtimeDetails: "按需调用极简进程 (stdio) | 基于 Node 22 原生运行时",
+      "业务人员可用自然语言查询品牌与项目数据；权限仍由 Sponge 统一控制，查询过程保留审计记录。",
+    accent: "teal",
+    category: "自然语言查数与 SQL 护栏",
+    tags: ["NL2SQL", "Sponge MCP", "SELECT + LIMIT 护栏", "Schema Cache"],
+    installCommand: "roll agent install @roll-agent/octopus-agent",
+    runCommand: "roll run octopus-agent [tool_name]",
+    runtimeDetails:
+      "按需调用微进程 (stdio / Python 3.11+) | 依赖 Sponge MCP Server Token | 审计日志落盘",
   },
 ];

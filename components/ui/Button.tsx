@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes } from "react";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "secondary" | "tab" | "card" | "copy";
-  accent?: "orange" | "blue" | "green" | "purple";
+  accent?: "orange" | "blue" | "green" | "purple" | "teal";
   active?: boolean;
 };
 

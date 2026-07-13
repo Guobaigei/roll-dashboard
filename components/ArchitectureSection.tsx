@@ -9,7 +9,7 @@ type Module = {
   name: string;
   role: string;
   desc: string;
-  code: string;
+  mechanism: readonly string[];
   commercialValue: string;
 };
 
@@ -17,60 +17,41 @@ const ARCH_MODULES: Module[] = [
   {
     id: "commander",
     name: "01. COMMANDER 指挥官",
-    role: "roll-core",
-    desc: "CLI 引擎与核心调度大脑。分析大白话指令，基于 LLM 实现多路径自治路由，解析多协议注册表并维护进程连接池。",
+    role: "GOAL ORCHESTRATION",
+    desc: "企业任务的统一指挥层。理解最终目标，维护任务上下文，组织执行顺序，并在失败或关键操作出现时决定下一步。",
+    mechanism: [
+      "统一接收来自业务人员、通用 Agent 与业务系统的目标",
+      "根据任务进度选择专业能力，并持续处理返回结果",
+      "在关键操作前请求确认，让任务推进与人工控制并存",
+    ],
     commercialValue:
-      "💡 将混沌复杂的指令转化为结构化精准路由。不重构业务，直接替代高昂的中继开发。",
-    code: `import { routeWithLLM } from "@roll-agent/core";
-
-// 自动使用大模型解析用户请求的自然语言意图并路由
-const route = await routeWithLLM(
-  "帮我在当前账号下给候选人发送签名回复",
-  registeredAgents,
-  model
-);
-console.log(route.agentName);  // => "browser-use-agent"
-console.log(route.toolName);   // => "send_prepared_reply"
-console.log(route.confidence); // => 1.0`,
+      "复杂业务不再依赖人工来回切换系统。企业只需明确目标，Roll 负责组织过程并给出真实结果。",
   },
   {
     id: "mcp",
     name: "02. MCP 协议网关",
-    role: "Model Context Protocol",
-    desc: "采用标准开放的 MCP 协议进行数据与能力的双向解耦传输。本地子进程采用 stdio 管道，持续长连接常驻服务采用 HTTP 协议流式传输。",
+    role: "STANDARD CAPABILITY LAYER",
+    desc: "企业能力的标准连接层。将不同系统与专业 Agent 转换为 Roll 可以统一理解和调用的能力，同时保持各自独立运行。",
+    mechanism: [
+      "用统一标准连接本地工具、远程服务与企业内部系统",
+      "将能力说明和执行边界一并交给指挥官",
+      "允许新 Agent 独立接入、替换和升级，不改写整个系统",
+    ],
     commercialValue:
-      "🔌 标准化生态。支持任意第三方 AI 客户端（如 Cursor, Claude Code）直接插拔接驳本地的所有招聘 Agent 能力。",
-    code: `import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-
-const server = new Server({
-  name: "roll-agent-mcp-bridge",
-  version: "1.0.0"
-}, {
-  capabilities: { tools: {} }
-});
-// 开放标准的 Tools 定义供指挥官或外部 IDE 客户端调用
-server.addTool({
-  name: "get_candidate_status",
-  handler: async (args) => { ... }
-});`,
+      "企业可以持续增加智能化覆盖面，同时复用现有技术资产，降低重复集成与长期维护成本。",
   },
   {
     id: "execution",
     name: "03. SUB-AGENTS 执行层",
-    role: "Execution Workers",
-    desc: "由多个微型垂直 Agent 组成，包括 强抗风控浏览器客户端（browser-use）、云端验签策略大脑（smart-reply）、多渠道飞书通知器（notify-agent）。",
+    role: "SPECIALIST EXECUTION",
+    desc: "由面向具体业务的专业 Agent 组成，分别负责浏览器操作、企业回复、策略调优、业务查数和消息通知等真实动作。",
+    mechanism: [
+      "每个 Agent 聚焦一种专业能力，并声明清晰的输入与结果",
+      "按任务需要组合多个 Agent，而不是把所有逻辑塞进一个机器人",
+      "独立运行、按需升级，单个能力变化不影响整套系统",
+    ],
     commercialValue:
-      "🎯 分工协作，强隔离运行。浏览器操控不挂，智能回复独立过签，多角色分工完成极其稳健的批量回复闭环。",
-    code: `// browser-use-agent 执行签名发送逻辑
-const browser = await Chrome.boot({ profile: "recruiter-a" });
-await browser.evaluate(
-  recruiter.sendPreparedReply, 
-  { preparedReplyId: "envelope_9x12" }
-);
-// notify-agent 同步至飞书团队群
-await notify.send({
-  text: "候选人已获取联系方式，自动同步完毕。"
-});`,
+      "专业能力可以像企业数字员工一样持续扩展：各司其职、按需组合，并对最终业务结果负责。",
   },
 ];
 
@@ -86,16 +67,22 @@ export function ArchitectureSection() {
         <div>
           <p className="eyebrow">SYSTEM ARCHITECTURE</p>
           <h2 id="arch-title" className="arch-main-title">
-            指挥官 - MCP - 执行层：模块化高弹性内核
+            指挥官 - MCP - 执行层：让企业能力可以持续组合与扩展
           </h2>
           <p className="arch-sub-title">
-            Roll 颠覆了传统单一臃肿的机器人软件，通过 **Model Context Protocol**
-            实现能力的解耦。本地指挥官掌控中台逻辑，多子进程 Agent 分而治之，提供极佳的健壮性。
+            Roll 不把所有业务逻辑塞进一个庞大的机器人。指挥官负责目标与过程，MCP 负责统一连接，专业
+            Agent 负责真实执行，让企业可以从一个场景起步，再逐步扩展。
           </p>
         </div>
         <div className="arch-selectors">
           {ARCH_MODULES.map((m) => (
-            <Button key={m.id} active={activeMod === m.id} onClick={() => setActiveMod(m.id)}>
+            <Button
+              className="arch-select-btn"
+              key={m.id}
+              active={activeMod === m.id}
+              aria-pressed={activeMod === m.id}
+              onClick={() => setActiveMod(m.id)}
+            >
               {m.name}
             </Button>
           ))}
@@ -112,9 +99,12 @@ export function ArchitectureSection() {
               xmlns="http://www.w3.org/2000/svg"
               className="arch-svg-element"
               role="img"
-              aria-label="System Architecture Diagram"
+              aria-label="Roll 企业 Agent 系统三层架构图"
             >
-              <title>Roll Agent System Architecture</title>
+              <title>Roll 企业 Agent 系统三层架构</title>
+              <desc>
+                业务人员、通用 Agent 与企业系统将目标交给指挥官，通过 MCP 连接层调用专业业务 Agent。
+              </desc>
               {/* Background Grid */}
               <defs>
                 <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -225,7 +215,7 @@ export function ArchitectureSection() {
                   strokeWidth="1.5"
                 />
                 <text x="42" y="212" fill="#888" fontSize="10" fontFamily="monospace">
-                  INPUT_SOURCE
+                  ENTERPRISE_INPUT
                 </text>
                 <text
                   x="42"
@@ -235,10 +225,10 @@ export function ArchitectureSection() {
                   fontFamily="monospace"
                   fontWeight="bold"
                 >
-                  CLI / IM Trigger
+                  People / Agent / System
                 </text>
                 <text x="42" y="265" fill="#666" fontSize="10" fontFamily="monospace">
-                  Natural Lang / RPC
+                  Goal / Request / Workflow
                 </text>
               </g>
 
@@ -274,13 +264,13 @@ export function ArchitectureSection() {
                   fontFamily="monospace"
                   fontWeight="bold"
                 >
-                  roll-core CLI
+                  Roll Commander
                 </text>
                 <text x="292" y="258" fill="#aaa" fontSize="11" fontFamily="monospace">
-                  LLM Router Engine
+                  Goal Orchestration
                 </text>
                 <text x="292" y="278" fill="#ff7b00" fontSize="10" fontFamily="monospace">
-                  &gt; routing with LLM...
+                  &gt; coordinating work...
                 </text>
               </g>
 
@@ -298,7 +288,7 @@ export function ArchitectureSection() {
                   M
                 </text>
                 <text x="475" y="272" fill="#888" fontSize="9" fontFamily="monospace">
-                  MCP Gate
+                  MCP Link
                 </text>
               </g>
 
@@ -322,7 +312,7 @@ export function ArchitectureSection() {
                   fontFamily="monospace"
                   fontWeight="bold"
                 >
-                  01. @roll-agent/browser-use
+                  01. OPERATIONS AUTOMATION
                 </text>
                 <text
                   x="572"
@@ -332,14 +322,14 @@ export function ArchitectureSection() {
                   fontFamily="monospace"
                   fontWeight="bold"
                 >
-                  浏览器操控助手
+                  业务操作 Agent
                 </text>
                 <text x="572" y="145" fill="#666" fontSize="10" fontFamily="monospace">
-                  行为仿真 / 强抗风控
+                  Browser / Workflow
                 </text>
                 <rect x="705" y="133" width="45" height="15" rx="3" fill="#002244" />
                 <text x="710" y="144" fill="#00d2ff" fontSize="9" fontFamily="monospace">
-                  PORT 3100
+                  CONNECTED
                 </text>
               </g>
 
@@ -363,7 +353,7 @@ export function ArchitectureSection() {
                   fontFamily="monospace"
                   fontWeight="bold"
                 >
-                  02. @roll-agent/smart-reply
+                  02. POLICY &amp; KNOWLEDGE
                 </text>
                 <text
                   x="572"
@@ -373,14 +363,14 @@ export function ArchitectureSection() {
                   fontFamily="monospace"
                   fontWeight="bold"
                 >
-                  智能回复助手
+                  企业知识 Agent
                 </text>
                 <text x="572" y="260" fill="#666" fontSize="10" fontFamily="monospace">
-                  Reply Authority Cloud API
+                  Reply / Policy / Guardrails
                 </text>
                 <rect x="710" y="248" width="40" height="15" rx="3" fill="#222" />
                 <text x="716" y="259" fill="#888" fontSize="9" fontFamily="monospace">
-                  STDIO
+                  READY
                 </text>
               </g>
 
@@ -404,7 +394,7 @@ export function ArchitectureSection() {
                   fontFamily="monospace"
                   fontWeight="bold"
                 >
-                  03. @roll-agent/notify-agent
+                  03. DATA INTELLIGENCE
                 </text>
                 <text
                   x="572"
@@ -414,41 +404,40 @@ export function ArchitectureSection() {
                   fontFamily="monospace"
                   fontWeight="bold"
                 >
-                  消息通知助手
+                  数据洞察 Agent
                 </text>
                 <text x="572" y="375" fill="#666" fontSize="10" fontFamily="monospace">
-                  Feishu Webhook Out出站
+                  Query / Validate / Explain
                 </text>
                 <rect x="710" y="363" width="40" height="15" rx="3" fill="#003311" />
                 <text x="716" y="374" fill="#00ff66" fontSize="9" fontFamily="monospace">
-                  STDIO
+                  READY
                 </text>
               </g>
             </svg>
           </div>
         </Card>
 
-        {/* Detailed Explanation Code/SaaS Card */}
-        <Card title={`${current.id}_explanation.ts`} dot={true}>
+        <Card title={`${current.id.toUpperCase()}_BUSINESS_LAYER`} dot={true}>
           <div className="arch-explain-body">
             <div className="arch-explain-header">
               <span className="explain-role">{current.role}</span>
               <h3 className="explain-title">{current.name}</h3>
               <p className="explain-desc">{current.desc}</p>
-              <div className="explain-value">
-                <strong>商业收益：</strong>
-                <span>{current.commercialValue}</span>
-              </div>
             </div>
 
-            <div className="arch-code-block">
-              <div className="code-header">
-                <span className="code-lang">TS</span>
-                <span className="code-filename">example-{current.id}.ts</span>
-              </div>
-              <pre className="code-content">
-                <code>{current.code}</code>
-              </pre>
+            <div className="arch-mechanism-block">
+              <span className="arch-mechanism-label">HOW IT WORKS</span>
+              <ol>
+                {current.mechanism.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ol>
+            </div>
+
+            <div className="explain-value">
+              <strong>ENTERPRISE VALUE | 企业价值</strong>
+              <span>{current.commercialValue}</span>
             </div>
           </div>
         </Card>

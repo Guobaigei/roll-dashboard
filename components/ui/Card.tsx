@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 type CardProps = {
   title?: string;
   dot?: boolean;
-  accent?: "orange" | "blue" | "green" | "purple";
+  accent?: "orange" | "blue" | "green" | "purple" | "teal";
   children: ReactNode;
   className?: string;
 };

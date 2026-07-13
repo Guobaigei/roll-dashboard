@@ -15,6 +15,7 @@ const AGENT_VERSION_BY_ID = {
   "browser-use-agent": versions.browserUse,
   "smart-reply-agent": versions.smartReply,
   "reply-policy-tuner-agent": versions.replyPolicyTuner,
+  "octopus-agent": versions.octopus,
 } as const;
 
 function getAgentVersionLabel(agentId: string) {
@@ -42,16 +43,16 @@ export function AgentStore({ agents }: AgentStoreProps) {
         <div className="section-heading">
           <p className="eyebrow">EXTENSION MARKETPLACE</p>
           <h2 id="marketplace-title" className="market-main-title">
-            子 Agent 应用中心：即装即用
+            企业专业能力中心：按场景持续扩展
           </h2>
           <p className="market-sub-title">
-            基于统一的 MCP 协议，通过命令行一行安装，便可热加载到你的 Roll 指挥官内核中。
-            按需配置，自主启动，完全解耦。
+            为 Roll 安装面向具体业务的专业
+            Agent。每项能力独立运行、按需配置，并由指挥官在任务中统一调用。
           </p>
         </div>
         <div className="market-count-tag">
           <strong>{agents.length}</strong>
-          <span>CORE AGENTS DEPLOYED</span>
+          <span>CAPABILITIES AVAILABLE</span>
         </div>
       </div>
 
@@ -66,13 +67,14 @@ export function AgentStore({ agents }: AgentStoreProps) {
                 variant="card"
                 accent={agent.accent}
                 active={activeAgent?.id === agent.id}
+                aria-pressed={activeAgent?.id === agent.id}
                 key={agent.id}
                 onClick={() => setSelectedAgentId(agent.id)}
               >
                 <div className="market-card-kicker-row">
                   <span className="market-card-kicker">{agent.category}</span>
                   <span className="market-card-status-row">
-                    <span className={`status-pill accent-${agent.accent}`}>ACTIVE</span>
+                    <span className={`status-pill accent-${agent.accent}`}>AVAILABLE</span>
                     {versionLabel ? (
                       <span className={`version-pill accent-${agent.accent}`}>{versionLabel}</span>
                     ) : null}
@@ -92,7 +94,7 @@ export function AgentStore({ agents }: AgentStoreProps) {
             aria-label="AI 助手详情"
           >
             <div className="detail-status-row">
-              <span className="detail-status-badge">READY TO BOOT</span>
+              <span className="detail-status-badge">READY TO INSTALL</span>
               <small className="detail-category">{activeAgent.category}</small>
             </div>
             <h3 className="detail-hero-title">{activeAgent.roleName}</h3>

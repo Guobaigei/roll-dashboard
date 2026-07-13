@@ -45,6 +45,11 @@ const packageSources = {
     ),
     packageName: "@roll-agent/reply-policy-tuner-agent",
   },
+  octopus: {
+    defaultVersion: "0.1.3",
+    localPackageJson: path.resolve(__dirname, "../../nano-agent/agents/octopus/package.json"),
+    packageName: "@roll-agent/octopus-agent",
+  },
 };
 
 if (!fs.existsSync(publicDir)) {

@@ -13,14 +13,17 @@ export function TopNav({ user }: TopNavProps) {
       </a>
       <div className="nav-right">
         <div className="nav-links">
-          <a href="#top" className="nav-item">
-            01. CLI_ONBOARDING
+          <a href="#product" className="nav-item">
+            01. PRODUCT
           </a>
           <a href="#architecture" className="nav-item">
             02. ARCHITECTURE
           </a>
+          <a href="#use-cases" className="nav-item">
+            03. USE_CASES
+          </a>
           <a href="#marketplace" className="nav-item">
-            03. MARKETPLACE
+            04. AGENTS
           </a>
         </div>
         {user ? (

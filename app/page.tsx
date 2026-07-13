@@ -1,9 +1,12 @@
 import nextDynamic from "next/dynamic";
+import { AgentIntegrationSection } from "@/components/AgentIntegrationSection";
 import { ArchitectureSection } from "@/components/ArchitectureSection";
 import { HeroSection } from "@/components/HeroSection";
 import { SiteFooter } from "@/components/SiteFooter";
 import { TopNav } from "@/components/TopNav";
+import { UseCasesSection } from "@/components/UseCasesSection";
 import { InteractiveGridBackground } from "@/components/ui/InteractiveGridBackground";
+import { WaysToWorkSection } from "@/components/WaysToWorkSection";
 import { agents } from "@/data/agents";
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { toSafeUser } from "@/lib/db/operator-users";
@@ -22,8 +25,11 @@ export default async function Home() {
       <InteractiveGridBackground />
       <TopNav user={user ? toSafeUser(user) : null} />
       <HeroSection />
+      <WaysToWorkSection />
       <ArchitectureSection />
+      <UseCasesSection />
       <AgentStore agents={agents} />
+      <AgentIntegrationSection />
       <SiteFooter />
     </main>
   );
