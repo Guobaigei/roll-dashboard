@@ -1,0 +1,28 @@
+@import "./homepage-ways.css";
+@import "./homepage-use-cases.css";
+@import "./homepage-integration.css";
+
+.accent-orange {
+  --accent-color: var(--orange);
+  --accent-glow-color: var(--orange-glow);
+}
+
+.accent-blue {
+  --accent-color: var(--blue);
+  --accent-glow-color: var(--blue-glow);
+}
+
+.accent-green {
+  --accent-color: var(--green);
+  --accent-glow-color: var(--green-glow);
+}
+
+.accent-purple {
+  --accent-color: var(--purple);
+  --accent-glow-color: var(--purple-glow);
+}
+
+.accent-teal {
+  --accent-color: var(--teal);
+  --accent-glow-color: var(--teal-glow);
+}

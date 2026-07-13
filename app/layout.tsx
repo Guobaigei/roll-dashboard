@@ -2,14 +2,14 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 const siteDescription =
-  "Roll 帮招聘团队在飞书、微信、钉钉里处理候选人消息、筛选合适人选、生成回复并同步团队进展。";
+  "Roll 将企业现有系统、数据与专业 Agent 连接成可执行的智能系统，让业务人员、AI Agent 与自动化流程共享同一套企业能力。";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title: "Roll | 强大的AI招聘助手",
+  title: "Roll | 企业级 Agent 智能系统",
   description: siteDescription,
   openGraph: {
-    title: "Roll | 强大的AI招聘助手",
+    title: "Roll | 企业级 Agent 智能系统",
     description: siteDescription,
     locale: "zh_CN",
     type: "website",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Roll | 强大的AI招聘助手",
+    title: "Roll | 企业级 Agent 智能系统",
     description: siteDescription,
   },
 };

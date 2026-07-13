@@ -1,8 +1,9 @@
 import type { ButtonHTMLAttributes } from "react";
+import type { Accent } from "@/lib/ui/accent";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "secondary" | "tab" | "card" | "copy";
-  accent?: "orange" | "blue" | "green" | "purple";
+  accent?: Accent;
   active?: boolean;
 };
 

@@ -167,6 +167,7 @@ export function InteractiveGridBackground() {
     let height = window.innerHeight;
     let topology: WebTopology = { nodes: [], edges: [] };
     const webSeed = Math.floor(Math.random() * 0xffffffff);
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const resizeCanvas = () => {
       const dpr = window.devicePixelRatio || 1;
@@ -315,7 +316,7 @@ export function InteractiveGridBackground() {
     };
 
     const handleVisibilityChange = () => {
-      if (document.hidden) {
+      if (document.hidden || reduceMotion) {
         mouseRef.current.active = false;
         isAnimationActive = false;
         stopAnimation();
@@ -336,7 +337,9 @@ export function InteractiveGridBackground() {
     window.addEventListener("resize", handleResize);
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    startAnimation();
+    if (!reduceMotion) {
+      startAnimation();
+    }
 
     return () => {
       stopAnimation();
