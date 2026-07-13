@@ -61,7 +61,7 @@ export function WaysToWorkSection() {
             <li>任务上下文可恢复</li>
           </ul>
           <div className="ways-command-line">
-            <span>$</span>
+            <span className="ways-command-prompt">$</span>
             <code>roll chat</code>
             <small>把目标交给 Roll</small>
           </div>
@@ -81,7 +81,7 @@ export function WaysToWorkSection() {
               <p>{mode.description}</p>
               <div className="ways-secondary-outcome">{mode.outcome}</div>
               <div className="ways-command-line compact">
-                <span>$</span>
+                <span className="ways-command-prompt">$</span>
                 <code>{mode.command}</code>
               </div>
             </article>

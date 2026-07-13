@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { type KeyboardEvent, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Terminal } from "@/components/ui/Terminal";
 import { useClipboardFeedback } from "@/hooks/use-clipboard-feedback";
@@ -84,16 +84,49 @@ export function InteractiveCLI() {
   const [activeStep, setActiveStep] = useState<string>("01");
   const { copiedKey, copy } = useClipboardFeedback();
 
-  const current = STEPS.find((s) => s.id === activeStep) ?? STEPS[0];
+  const handleCopy = (step: Step) => {
+    void copy(step.command, step.id);
+  };
 
-  const handleCopy = () => {
-    void copy(current.command, current.id);
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, stepId: string) => {
+    const currentIndex = STEPS.findIndex((step) => step.id === stepId);
+    let nextIndex: number | null = null;
+
+    switch (event.key) {
+      case "ArrowRight":
+        nextIndex = (currentIndex + 1) % STEPS.length;
+        break;
+      case "ArrowLeft":
+        nextIndex = (currentIndex - 1 + STEPS.length) % STEPS.length;
+        break;
+      case "Home":
+        nextIndex = 0;
+        break;
+      case "End":
+        nextIndex = STEPS.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    const nextStep = STEPS[nextIndex];
+    setActiveStep(nextStep.id);
+    event.currentTarget
+      .closest('[role="tablist"]')
+      ?.querySelector<HTMLButtonElement>(`#setup-tab-${nextStep.id}`)
+      ?.focus();
   };
 
   return (
     <div className="cli-container">
       {/* Step Stepper Header */}
-      <div className="cli-steps-tabs" role="tablist" aria-label="Roll 快速部署步骤">
+      <div
+        className="cli-steps-tabs"
+        role="tablist"
+        aria-label="Roll 快速部署步骤"
+        aria-orientation="horizontal"
+      >
         {STEPS.map((s) => (
           <Button
             aria-controls={`setup-panel-${s.id}`}
@@ -101,49 +134,55 @@ export function InteractiveCLI() {
             id={`setup-tab-${s.id}`}
             key={s.id}
             role="tab"
+            tabIndex={activeStep === s.id ? 0 : -1}
             variant="tab"
             active={activeStep === s.id}
             onClick={() => setActiveStep(s.id)}
+            onKeyDown={(event) => handleTabKeyDown(event, s.id)}
           >
             {s.tabName}
           </Button>
         ))}
       </div>
 
-      <div
-        className="cli-layout"
-        id={`setup-panel-${current.id}`}
-        role="tabpanel"
-        aria-labelledby={`setup-tab-${current.id}`}
-      >
-        {/* Detail Panel */}
-        <div className="cli-info-panel">
-          <div className="step-tag">STEP {current.id}</div>
-          <h3 className="cli-info-title">{current.description}</h3>
-          <p className="cli-commercial-value">{current.commercialValue}</p>
+      {STEPS.map((step) => (
+        <div
+          className="cli-layout"
+          hidden={activeStep !== step.id}
+          id={`setup-panel-${step.id}`}
+          key={step.id}
+          role="tabpanel"
+          aria-labelledby={`setup-tab-${step.id}`}
+        >
+          {/* Detail Panel */}
+          <div className="cli-info-panel">
+            <div className="step-tag">STEP {step.id}</div>
+            <h3 className="cli-info-title">{step.description}</h3>
+            <p className="cli-commercial-value">{step.commercialValue}</p>
 
-          <div className="cli-command-block">
-            <span className="cli-prompt-symbol">$</span>
-            <code className="cli-command-text">{current.command}</code>
-            <Button variant="copy" onClick={handleCopy} aria-live="polite">
-              {copiedKey === current.id ? "COPIED!" : "COPY"}
-            </Button>
+            <div className="cli-command-block">
+              <span className="cli-prompt-symbol">$</span>
+              <code className="cli-command-text">{step.command}</code>
+              <Button variant="copy" onClick={() => handleCopy(step)} aria-live="polite">
+                {copiedKey === step.id ? "COPIED!" : "COPY"}
+              </Button>
+            </div>
           </div>
+
+          {/* Terminal Simulation Panel - Handled by UI Terminal Component */}
+          <Terminal height="200px">
+            <div className="terminal-line input-line">
+              <span className="prompt">$</span>
+              <span className="typing-text">{step.terminalCommand}</span>
+            </div>
+            <div className="terminal-output">{step.output}</div>
+            <div className="terminal-line cursor-line">
+              <span className="prompt">$</span>
+              <span className="blinking-cursor">_</span>
+            </div>
+          </Terminal>
         </div>
-
-        {/* Terminal Simulation Panel - Handled by UI Terminal Component */}
-        <Terminal height="200px">
-          <div className="terminal-line input-line">
-            <span className="prompt">$</span>
-            <span className="typing-text">{current.terminalCommand}</span>
-          </div>
-          <div className="terminal-output">{current.output}</div>
-          <div className="terminal-line cursor-line">
-            <span className="prompt">$</span>
-            <span className="blinking-cursor">_</span>
-          </div>
-        </Terminal>
-      </div>
+      ))}
     </div>
   );
 }

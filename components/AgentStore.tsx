@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import type { Agent } from "@/data/agents";
@@ -9,6 +9,7 @@ import versions from "../public/roll-versions.json";
 
 type AgentStoreProps = {
   agents: Agent[];
+  initialAgentId?: string;
 };
 
 const AGENT_VERSION_BY_ID = {
@@ -23,17 +24,36 @@ function getAgentVersionLabel(agentId: string) {
   return version ? `v${version}` : null;
 }
 
-export function AgentStore({ agents }: AgentStoreProps) {
-  const [selectedAgentId, setSelectedAgentId] = useState(agents[0]?.id ?? "");
+function replaceSelectedAgentInUrl(agentId: string) {
+  const url = new URL(window.location.href);
+
+  if (url.searchParams.get("agent") === agentId) {
+    return;
+  }
+
+  url.searchParams.set("agent", agentId);
+  window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+}
+
+export function AgentStore({ agents, initialAgentId }: AgentStoreProps) {
+  const [selectedAgentId, setSelectedAgentId] = useState(() =>
+    initialAgentId && agents.some((agent) => agent.id === initialAgentId)
+      ? initialAgentId
+      : (agents[0]?.id ?? ""),
+  );
   const { copiedKey, copy } = useClipboardFeedback();
 
-  const agentById = useMemo(() => new Map(agents.map((agent) => [agent.id, agent])), [agents]);
-  const activeAgent = agentById.get(selectedAgentId) ?? agents[0] ?? null;
+  const activeAgent = agents.find((agent) => agent.id === selectedAgentId) ?? agents[0] ?? null;
   const installCopyKey = activeAgent ? `${activeAgent.id}:install` : "";
   const runCopyKey = activeAgent ? `${activeAgent.id}:run` : "";
 
   const handleCopy = (cmd: string, key: string) => {
     void copy(cmd, key);
+  };
+
+  const handleSelectAgent = (agentId: string) => {
+    setSelectedAgentId(agentId);
+    replaceSelectedAgentInUrl(agentId);
   };
 
   return (
@@ -69,7 +89,7 @@ export function AgentStore({ agents }: AgentStoreProps) {
                 active={activeAgent?.id === agent.id}
                 aria-pressed={activeAgent?.id === agent.id}
                 key={agent.id}
-                onClick={() => setSelectedAgentId(agent.id)}
+                onClick={() => handleSelectAgent(agent.id)}
               >
                 <div className="market-card-kicker-row">
                   <span className="market-card-kicker">{agent.category}</span>

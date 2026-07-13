@@ -1,0 +1,207 @@
+/* ==========================================
+   FOLD 4: ENTERPRISE USE CASES
+   ========================================== */
+
+.use-cases-section {
+  padding: var(--section-y) var(--page-inline);
+  border-top: 1px solid var(--border);
+  background:
+    radial-gradient(circle at 12% 18%, rgba(177, 77, 255, 0.04), transparent 32%),
+    radial-gradient(circle at 88% 74%, rgba(20, 212, 192, 0.035), transparent 34%);
+  content-visibility: auto;
+  contain-intrinsic-size: 1000px;
+}
+
+.use-cases-grid {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.use-case-card {
+  --case-accent: var(--accent-color, var(--orange));
+  --case-glow: var(--accent-glow-color, var(--orange-glow));
+
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: rgba(17, 17, 19, 0.96);
+  transition:
+    border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.use-case-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--case-accent);
+  box-shadow: 0 0 0 var(--case-glow);
+  opacity: 0.92;
+  transition:
+    box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.use-case-card:hover {
+  border-color: var(--border-glow);
+  box-shadow:
+    inset 0 0 0 1px var(--border),
+    0 18px 44px rgba(0, 0, 0, 0.18);
+}
+
+.use-case-card:hover::before {
+  box-shadow: 0 0 18px var(--case-glow);
+  opacity: 1;
+}
+
+.use-case-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.use-case-index {
+  font-size: 9px;
+  font-weight: var(--weight-bold);
+  letter-spacing: 1px;
+  color: var(--case-accent);
+}
+
+.use-case-card h3 {
+  margin: 26px 0 24px;
+  font-size: 22px;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.use-case-flow {
+  display: block;
+  width: 112px;
+  height: 18px;
+  color: var(--case-accent);
+  pointer-events: none;
+}
+
+.use-case-flow svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.use-case-flow-rail,
+.use-case-flow-symbol > * {
+  vector-effect: non-scaling-stroke;
+}
+
+.use-case-flow-rail,
+.use-case-flow-symbol {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.use-case-flow-rail {
+  stroke: var(--border-glow);
+  stroke-width: 1;
+  opacity: 0.72;
+}
+
+.use-case-flow-symbol {
+  stroke: currentColor;
+  stroke-width: 1.25;
+  opacity: 0.68;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.use-case-flow-fill,
+.use-case-flow-signal {
+  fill: currentColor;
+}
+
+.use-case-flow-signal {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.use-case-card:hover .use-case-flow-symbol {
+  opacity: 1;
+}
+
+.use-case-card:hover .use-case-flow-signal {
+  animation: use-case-signal-pass 0.7s cubic-bezier(0.16, 1, 0.3, 1) 1;
+}
+
+.use-case-card dl {
+  display: grid;
+  gap: 18px;
+  margin: 0;
+}
+
+.use-case-card dl > div {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+}
+
+.use-case-card dt {
+  color: var(--fg-dim);
+  font-size: 9px;
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.8px;
+}
+
+.use-case-card dd {
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: 13px;
+  line-height: 1.7;
+  line-break: strict;
+  text-wrap: pretty;
+}
+
+.use-case-card .use-case-outcome {
+  position: relative;
+  border-top-style: solid;
+}
+
+.use-case-card .use-case-outcome::after {
+  content: "";
+  position: absolute;
+  inset: -3px 0 auto auto;
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--case-accent);
+  background: var(--panel-bg);
+  transform: rotate(45deg);
+}
+
+.use-case-card .use-case-outcome dd {
+  color: #d2d2d7;
+}
+
+@keyframes use-case-signal-pass {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+
+  22% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(61px);
+  }
+}

@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
+import type { Accent } from "@/lib/ui/accent";
 
 type CardProps = {
   title?: string;
   dot?: boolean;
-  accent?: "orange" | "blue" | "green" | "purple" | "teal";
+  accent?: Accent;
   children: ReactNode;
   className?: string;
 };

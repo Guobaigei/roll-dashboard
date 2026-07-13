@@ -1,3 +1,5 @@
+import type { Accent } from "@/lib/ui/accent";
+
 export type Agent = {
   id: string;
   roleName: string;
@@ -5,7 +7,7 @@ export type Agent = {
   plainSummary: string;
   examplePrompt: string;
   businessOutcome: string;
-  accent: "orange" | "blue" | "green" | "purple" | "teal";
+  accent: Accent;
   category: string;
   tags: string[];
   installCommand: string;
@@ -67,9 +69,8 @@ export const agents: Agent[] = [
     id: "octopus-agent",
     roleName: "丸子 Agent",
     overview:
-      "对接 Sponge MCP Server 的自然语言查数助手。通过 stdio 接入 Roll 指挥官，以 Schema Cache、MCP Sampling 与三步 SQL 管线（get_schema → validate_sql → execute_sql）把业务问题译成安全可执行查询。内置 SQL Guard：仅允许单条 SELECT 且必须带 LIMIT；全链路 Audit Log 记录 trace、session、SQL hash 与执行摘要，权限范围由 Sponge 在 execute_sql 阶段按 Token 统一补全。",
-    plainSummary:
-      "自然语言提问即可查 Sponge 业务数据：本地缓存 schema、采样生成 SQL，且强制 SELECT + LIMIT 护栏。",
+      "连接 Sponge MCP Server，将自然语言问题转换为受控的数据查询。执行前会校验查询语句与安全边界，权限仍由 Sponge 统一控制，并保留完整的审计记录。",
+    plainSummary: "让业务人员直接询问品牌与项目数据，同时保留权限边界与查询记录。",
     examplePrompt:
       'roll run octopus-agent query_sponge --input-json \'{"question":"查询我能看到的品牌列表","originalQuestion":"查询我能看到的品牌列表"}\'',
     businessOutcome:

@@ -1,0 +1,179 @@
+/* ==========================================
+   FOLD 6: AGENT INTEGRATION
+   ========================================== */
+
+.integration-section {
+  padding: var(--section-y) var(--page-inline);
+  border-top: 1px solid var(--border);
+  background:
+    linear-gradient(120deg, rgba(255, 94, 0, 0.045), transparent 36%),
+    repeating-linear-gradient(90deg, transparent 0 79px, rgba(255, 255, 255, 0.018) 80px),
+    var(--bg-darker);
+  content-visibility: auto;
+  contain-intrinsic-size: 760px;
+}
+
+.integration-layout {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(460px, 1.1fr);
+  gap: 64px;
+  align-items: center;
+}
+
+.integration-copy h2 {
+  margin: 0;
+  max-width: 680px;
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.2;
+}
+
+.integration-lead {
+  max-width: 680px;
+  margin: 20px 0 34px;
+  color: var(--fg-muted);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.integration-value-list {
+  display: grid;
+  gap: 16px;
+}
+
+.integration-value-list > div {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.integration-value-list > div > span {
+  color: var(--orange);
+  font-size: 10px;
+  font-weight: var(--weight-bold);
+  border-top: 1px solid var(--orange);
+  padding-top: 5px;
+}
+
+.integration-value-list p {
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.integration-value-list strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--fg);
+}
+
+.integration-value-list code {
+  color: #d8d8dc;
+  font-family: var(--font-code);
+  font-size: 12px;
+}
+
+.integration-download-panel {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 94, 0, 0.32);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(145deg, rgba(255, 94, 0, 0.1), transparent 42%), rgba(14, 14, 16, 0.96);
+  box-shadow:
+    0 26px 70px rgba(0, 0, 0, 0.32),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+}
+
+.integration-panel-head {
+  min-height: 42px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-darker);
+}
+
+.integration-panel-head > span:first-child {
+  color: var(--fg-muted);
+  font-size: 10px;
+  font-weight: var(--weight-bold);
+  letter-spacing: 1px;
+}
+
+.integration-command-stack {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.integration-command-stack > div {
+  min-width: 0;
+  padding: 22px;
+  background: rgba(9, 9, 11, 0.96);
+}
+
+.integration-command-label {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--fg-dim);
+  font-size: 9px;
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.8px;
+}
+
+.integration-command-stack code {
+  display: block;
+  color: var(--fg);
+  font-family: var(--font-code);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.integration-download-action {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: center;
+  padding: 26px;
+}
+
+.integration-download-action > div {
+  min-width: 0;
+}
+
+.integration-download-action strong,
+.integration-download-action > div > span {
+  display: block;
+}
+
+.integration-download-action strong {
+  color: var(--fg);
+  font-size: 14px;
+}
+
+.integration-download-action > div > span {
+  margin-top: 6px;
+  color: var(--fg-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.integration-file-meta {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 12px 26px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-dim);
+  background: rgba(0, 0, 0, 0.15);
+  font-size: 9px;
+  letter-spacing: 0.5px;
+}

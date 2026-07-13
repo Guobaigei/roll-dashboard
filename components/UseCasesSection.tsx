@@ -56,9 +56,8 @@ function UseCaseSignal({ type }: { type: UseCaseSignalType }) {
   }
 
   return (
-    <span className="use-case-flow" aria-hidden="true">
-      <svg viewBox="0 0 112 24" fill="none" focusable="false">
-        <title>业务流程示意</title>
+    <span className="use-case-flow">
+      <svg viewBox="0 0 112 24" fill="none" focusable="false" aria-hidden="true">
         <path className="use-case-flow-rail" d="M22 12h24m23 0h17" />
         <g className="use-case-flow-symbol">{symbol}</g>
         <g className="use-case-flow-signal">

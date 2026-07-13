@@ -60,11 +60,11 @@ export function AgentIntegrationSection() {
 
           <div className="integration-command-stack">
             <div>
-              <span>NATURAL LANGUAGE</span>
+              <span className="integration-command-label">NATURAL LANGUAGE</span>
               <code>roll ask &quot;帮我完成这项业务任务&quot; --json</code>
             </div>
             <div>
-              <span>STANDARD ACTION</span>
+              <span className="integration-command-label">STANDARD ACTION</span>
               <code>roll run &lt;agent&gt; &lt;tool&gt; --json</code>
             </div>
           </div>
