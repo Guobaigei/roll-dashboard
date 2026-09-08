@@ -2,9 +2,10 @@
 
 import { type KeyboardEvent, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { PanelDotBackground } from "@/components/ui/PanelDotBackground";
 import { Terminal } from "@/components/ui/Terminal";
+import { installationMethods } from "@/data/installation";
 import { useClipboardFeedback } from "@/hooks/use-clipboard-feedback";
-import versions from "../public/roll-versions.json";
 
 type Step = {
   id: string;
@@ -20,15 +21,11 @@ const STEPS: Step[] = [
   {
     id: "01",
     tabName: "01.INSTALL",
-    command: "npm i -g @roll-agent/core",
-    terminalCommand: "npm i -g @roll-agent/core",
-    description: "全局安装 Roll 指挥官，为企业 Agent、业务系统与通用 AI 工作台建立统一入口。",
-    commercialValue: "第一步只安装核心能力，不要求立刻改造现有系统或迁移业务流程。",
-    output: `→ Installing @roll-agent/core...
-✓ Roll Commander v${versions.core} installed
-✓ Command available: roll
-
-NEXT: run "roll setup"`,
+    command: installationMethods[0].command,
+    terminalCommand: installationMethods[0].command,
+    description: installationMethods[0].description,
+    commercialValue: "",
+    output: installationMethods[0].output,
   },
   {
     id: "02",
@@ -54,7 +51,7 @@ READY: run "roll chat"`,
     terminalCommand: "roll chat",
     description: "进入企业目标工作台，用持续会话协调专业 Agent，把业务任务推进到结果。",
     commercialValue: "业务人员只需描述目标，不必理解背后的系统接口与执行顺序。",
-    output: `ROLL AGENT v${versions.core}
+    output: `ROLL AGENT
 Enterprise Agent Workspace ready
 Agents connected · Skills available · Approval guarded
 
@@ -82,10 +79,24 @@ System ready for enterprise workflows.`,
 
 export function InteractiveCLI() {
   const [activeStep, setActiveStep] = useState<string>("01");
+  const [installMethodId, setInstallMethodId] = useState<string>("unix");
   const { copiedKey, copy } = useClipboardFeedback();
+  const installMethod =
+    installationMethods.find((method) => method.id === installMethodId) ?? installationMethods[0];
+  const steps = STEPS.map((step) =>
+    step.id === "01"
+      ? {
+          ...step,
+          command: installMethod.command,
+          terminalCommand: installMethod.command,
+          description: installMethod.description,
+          output: installMethod.output,
+        }
+      : step,
+  );
 
   const handleCopy = (step: Step) => {
-    void copy(step.command, step.id);
+    void copy(step.command, `${installMethodId}:${step.id}`);
   };
 
   const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, stepId: string) => {
@@ -120,6 +131,7 @@ export function InteractiveCLI() {
 
   return (
     <div className="cli-container">
+      <PanelDotBackground />
       {/* Step Stepper Header */}
       <div
         className="cli-steps-tabs"
@@ -145,7 +157,7 @@ export function InteractiveCLI() {
         ))}
       </div>
 
-      {STEPS.map((step) => (
+      {steps.map((step) => (
         <div
           className="cli-layout"
           hidden={activeStep !== step.id}
@@ -156,28 +168,65 @@ export function InteractiveCLI() {
         >
           {/* Detail Panel */}
           <div className="cli-info-panel">
-            <div className="step-tag">STEP {step.id}</div>
+            {step.id !== "01" && <div className="step-tag">STEP {step.id}</div>}
+            {step.id === "01" && (
+              <fieldset className="cli-install-methods" aria-label="安装方式">
+                <div className="cli-install-options">
+                  {installationMethods.map((method) => (
+                    <label className="cli-install-option" key={method.id}>
+                      <input
+                        type="radio"
+                        name="roll-install-method"
+                        value={method.id}
+                        checked={installMethodId === method.id}
+                        onChange={() => setInstallMethodId(method.id)}
+                      />
+                      <span>{method.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            )}
             <h3 className="cli-info-title">{step.description}</h3>
-            <p className="cli-commercial-value">{step.commercialValue}</p>
+            {step.commercialValue && <p className="cli-commercial-value">{step.commercialValue}</p>}
 
             <div className="cli-command-block">
-              <span className="cli-prompt-symbol">$</span>
+              <span className="cli-prompt-symbol">{installMethod.prompt}</span>
               <code className="cli-command-text">{step.command}</code>
-              <Button variant="copy" onClick={() => handleCopy(step)} aria-live="polite">
-                {copiedKey === step.id ? "COPIED!" : "COPY"}
+              <Button
+                variant="copy"
+                onClick={() => handleCopy(step)}
+                aria-label={`复制命令：${step.command}`}
+                aria-live="polite"
+              >
+                {copiedKey === `${installMethodId}:${step.id}` ? "COPIED!" : "COPY"}
               </Button>
             </div>
+            {step.id === "01" && (
+              <div className="cli-install-details">
+                <details key={installMethod.id}>
+                  <summary>系统要求</summary>
+                  <p>{installMethod.requirements}</p>
+                </details>
+              </div>
+            )}
+            {step.id === "04" && (
+              <p className="cli-update-note">
+                后续更新：<code>roll update --check</code> 检查更新，<code>roll update</code>
+                升级。Windows 0.38.0 用户若更新失败，可重新运行在线安装脚本。
+              </p>
+            )}
           </div>
 
           {/* Terminal Simulation Panel - Handled by UI Terminal Component */}
-          <Terminal height="200px">
+          <Terminal height="200px" badge="流程示意 · 非实际执行">
             <div className="terminal-line input-line">
-              <span className="prompt">$</span>
+              <span className="prompt">{installMethod.prompt}</span>
               <span className="typing-text">{step.terminalCommand}</span>
             </div>
             <div className="terminal-output">{step.output}</div>
             <div className="terminal-line cursor-line">
-              <span className="prompt">$</span>
+              <span className="prompt">{installMethod.prompt}</span>
               <span className="blinking-cursor">_</span>
             </div>
           </Terminal>

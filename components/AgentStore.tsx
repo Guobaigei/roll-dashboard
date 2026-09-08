@@ -128,6 +128,8 @@ export function AgentStore({ agents, initialAgentId }: AgentStoreProps) {
                 <code className="box-command">{activeAgent.installCommand}</code>
                 <Button
                   variant="copy"
+                  aria-label={`复制安装命令：${activeAgent.installCommand}`}
+                  aria-live="polite"
                   onClick={() => handleCopy(activeAgent.installCommand, installCopyKey)}
                 >
                   {copiedKey === installCopyKey ? "COPIED" : "COPY"}
@@ -143,6 +145,8 @@ export function AgentStore({ agents, initialAgentId }: AgentStoreProps) {
                 <code className="box-command">{activeAgent.runCommand}</code>
                 <Button
                   variant="copy"
+                  aria-label={`复制运行命令：${activeAgent.runCommand}`}
+                  aria-live="polite"
                   onClick={() => handleCopy(activeAgent.runCommand, runCopyKey)}
                 >
                   {copiedKey === runCopyKey ? "COPIED" : "COPY"}
@@ -151,11 +155,11 @@ export function AgentStore({ agents, initialAgentId }: AgentStoreProps) {
             </div>
 
             <div className="outcome-box-row">
-              <Card className="outcome-inner-card">
+              <Card className="outcome-inner-card" dot={false}>
                 <span className="outcome-tag">DELIVERABLES | 商业产出</span>
                 <p className="outcome-desc-p">{activeAgent.businessOutcome}</p>
               </Card>
-              <Card className="outcome-inner-card">
+              <Card className="outcome-inner-card" dot={false}>
                 <span className="outcome-tag">RUNTIME SPEC | 运行时规格</span>
                 <p className="outcome-runtime-p">{activeAgent.runtimeDetails}</p>
               </Card>

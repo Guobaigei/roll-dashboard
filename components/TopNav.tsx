@@ -1,4 +1,6 @@
+import { homepageNavigation } from "@/data/homepage-navigation";
 import type { SafeOperatorUser } from "@/lib/db/operator-users";
+import { MobileNavigation } from "./MobileNavigation";
 
 type TopNavProps = {
   user?: SafeOperatorUser | null;
@@ -13,19 +15,13 @@ export function TopNav({ user }: TopNavProps) {
       </a>
       <div className="nav-right">
         <div className="nav-links">
-          <a href="#product" className="nav-item">
-            01. PRODUCT
-          </a>
-          <a href="#architecture" className="nav-item">
-            02. ARCHITECTURE
-          </a>
-          <a href="#use-cases" className="nav-item">
-            03. USE_CASES
-          </a>
-          <a href="#marketplace" className="nav-item">
-            04. AGENTS
-          </a>
+          {homepageNavigation.map((item) => (
+            <a href={item.href} className="nav-item" key={item.href}>
+              {item.label}
+            </a>
+          ))}
         </div>
+        <MobileNavigation />
         {user ? (
           <div className="nav-session">
             <span className="nav-session-user" title={user.bossUsername}>

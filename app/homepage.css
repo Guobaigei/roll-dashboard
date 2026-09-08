@@ -1,6 +1,11 @@
 @import "./homepage-ways.css";
 @import "./homepage-use-cases.css";
 @import "./homepage-integration.css";
+@import "./homepage-install.css";
+@import "./homepage-nebula.css";
+@import "./homepage-actions.css";
+@import "./homepage-panel.css";
+@import "./homepage-refinements.css";
 
 .accent-orange {
   --accent-color: var(--orange);
