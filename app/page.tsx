@@ -5,7 +5,6 @@ import { HeroSection } from "@/components/HeroSection";
 import { SiteFooter } from "@/components/SiteFooter";
 import { TopNav } from "@/components/TopNav";
 import { UseCasesSection } from "@/components/UseCasesSection";
-import { InteractiveGridBackground } from "@/components/ui/InteractiveGridBackground";
 import { WaysToWorkSection } from "@/components/WaysToWorkSection";
 import { agents } from "@/data/agents";
 import { getCurrentUser } from "@/lib/auth/current-user";
@@ -37,7 +36,6 @@ export default async function Home({ searchParams }: HomePageProps) {
       <a className="skip-link" href="#main-content">
         跳到主要内容
       </a>
-      <InteractiveGridBackground />
       <TopNav user={user ? toSafeUser(user) : null} />
       <main id="main-content" tabIndex={-1}>
         <HeroSection />

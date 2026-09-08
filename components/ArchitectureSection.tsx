@@ -92,7 +92,8 @@ export function ArchitectureSection() {
       <div className="arch-grid">
         {/* Animated Interactive SVG Diagram */}
         <Card title="SYSTEM_DATAFLOW_VISUALIZER" dot={true}>
-          <div className="svg-wrapper">
+          {/* biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need focus to scroll the diagram. */}
+          <section className="svg-wrapper" aria-label="架构图，可横向滚动" tabIndex={0}>
             <svg
               viewBox="0 0 800 480"
               fill="none"
@@ -225,10 +226,10 @@ export function ArchitectureSection() {
                   fontFamily="monospace"
                   fontWeight="bold"
                 >
-                  People / Agent / System
+                  人员 / AI / 系统
                 </text>
                 <text x="42" y="265" fill="#666" fontSize="10" fontFamily="monospace">
-                  Goal / Request / Workflow
+                  Goals / Requests
                 </text>
               </g>
 
@@ -329,7 +330,7 @@ export function ArchitectureSection() {
                 </text>
                 <rect x="705" y="133" width="45" height="15" rx="3" fill="#002244" />
                 <text x="710" y="144" fill="#00d2ff" fontSize="9" fontFamily="monospace">
-                  CONNECTED
+                  READY
                 </text>
               </g>
 
@@ -366,7 +367,7 @@ export function ArchitectureSection() {
                   企业知识 Agent
                 </text>
                 <text x="572" y="260" fill="#666" fontSize="10" fontFamily="monospace">
-                  Reply / Policy / Guardrails
+                  Reply / Policy
                 </text>
                 <rect x="710" y="248" width="40" height="15" rx="3" fill="#222" />
                 <text x="716" y="259" fill="#888" fontSize="9" fontFamily="monospace">
@@ -407,7 +408,7 @@ export function ArchitectureSection() {
                   数据洞察 Agent
                 </text>
                 <text x="572" y="375" fill="#666" fontSize="10" fontFamily="monospace">
-                  Query / Validate / Explain
+                  Query / Validate
                 </text>
                 <rect x="710" y="363" width="40" height="15" rx="3" fill="#003311" />
                 <text x="716" y="374" fill="#00ff66" fontSize="9" fontFamily="monospace">
@@ -415,7 +416,8 @@ export function ArchitectureSection() {
                 </text>
               </g>
             </svg>
-          </div>
+          </section>
+          <p className="arch-scroll-hint">左右滑动查看完整架构</p>
         </Card>
 
         <Card title={`${current.id.toUpperCase()}_BUSINESS_LAYER`} dot={true}>

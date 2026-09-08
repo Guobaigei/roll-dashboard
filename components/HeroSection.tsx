@@ -1,8 +1,11 @@
 import { InteractiveCLI } from "./InteractiveCLI";
+import { LiquidMetalLink } from "./ui/LiquidMetalLink";
+import { NebulaBackground } from "./ui/NebulaBackground";
 
 export function HeroSection() {
   return (
     <section className="hero-section" id="top" aria-labelledby="hero-title">
+      <NebulaBackground />
       <div className="hero-grid-layout">
         {/* Left Copy Panel */}
         <div className="hero-copy-panel">
@@ -42,20 +45,22 @@ export function HeroSection() {
           </div>
 
           <div className="hero-actions-row">
-            <a className="primary-action-btn" href="#quickstart">
-              2 分钟快速部署
-            </a>
-            <a className="secondary-action-btn" href="#use-cases">
-              查看企业应用场景
+            <LiquidMetalLink href="#quickstart">安装 Roll</LiquidMetalLink>
+            <a className="tideform-outline-link" href="#use-cases">
+              <span>查看企业应用场景</span>
+              <svg viewBox="0 0 21 9" aria-hidden="true">
+                <path d="M0 4.5h18M14.5 1.2 18.3 4.5l-3.8 3.3" />
+              </svg>
             </a>
           </div>
+          <p className="hero-install-note">支持 macOS、Linux 和 Windows</p>
         </div>
 
         {/* Right Interactive Onboarding Terminal */}
         <div className="hero-terminal-panel" id="quickstart">
           <div className="terminal-onboarding-caption">
             <span className="onboarding-indicator" />
-            <span>ENTERPRISE_AGENT_ONBOARDING | 企业快速部署</span>
+            <span>GET STARTED WITH ROLL | 安装与开始使用</span>
           </div>
           <InteractiveCLI />
         </div>

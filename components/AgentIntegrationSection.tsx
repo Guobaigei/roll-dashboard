@@ -55,37 +55,44 @@ export function AgentIntegrationSection() {
         <aside className="integration-download-panel" aria-label="Roll Core Skill 下载">
           <div className="integration-panel-head">
             <span>ROLL_CORE_SKILL</span>
-            <span className="skill-version-tag">STABLE_V{manifest.core}</span>
+            <span className="skill-version-tag">CORE v{manifest.core}</span>
           </div>
 
           <div className="integration-command-stack">
             <div>
               <span className="integration-command-label">NATURAL LANGUAGE</span>
-              <code>roll ask &quot;帮我完成这项业务任务&quot; --json</code>
+              <code>
+                roll ask &quot;帮我完成这项业务任务&quot;{" "}
+                <span className="command-option">--json</span>
+              </code>
             </div>
             <div>
               <span className="integration-command-label">STANDARD ACTION</span>
-              <code>roll run &lt;agent&gt; &lt;tool&gt; --json</code>
+              <code>
+                roll run &lt;agent&gt; &lt;tool&gt; <span className="command-option">--json</span>
+              </code>
             </div>
           </div>
 
           <div className="integration-download-action">
             <div>
-              <strong>OpenClaw / Agent Skill Archive</strong>
-              <span>将 Roll 能力说明与调用入口安装到现有 Agent</span>
+              <strong>Roll Core Skill</strong>
+              <span>将 Roll 能力说明接入现有 AI Agent</span>
             </div>
             <a
               href="/openclaw-roll-core-skill-latest.zip"
               download
               className="skill-action-btn-link"
             >
-              <span className="btn-icon">↓</span>
-              <span className="btn-text">PULL ROLL SKILL (.ZIP)</span>
+              <span className="btn-icon" aria-hidden="true">
+                ↓
+              </span>
+              <span className="btn-text">下载 Roll Skill</span>
             </a>
           </div>
 
           <div className="integration-file-meta">
-            <span>SIZE: {sizeLabel}</span>
+            <span>ZIP · {sizeLabel}</span>
             <span title={archive?.sha256 ? `SHA-256: ${archive.sha256}` : undefined}>
               SHA-256: {sha256Label}
             </span>
