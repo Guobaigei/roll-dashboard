@@ -50,6 +50,10 @@ const packageSources = {
     localPackageJson: path.resolve(__dirname, "../../nano-agent/agents/octopus/package.json"),
     packageName: "@roll-agent/octopus-agent",
   },
+  cheese: {
+    defaultVersion: "0.1.1",
+    packageName: "@roll-agent/cheese-agent",
+  },
 };
 
 if (!fs.existsSync(publicDir)) {
@@ -105,6 +109,10 @@ function readExistingVersionManifest() {
 }
 
 function readLocalPackageVersion(key, source) {
+  if (!source.localPackageJson) {
+    return null;
+  }
+
   const json = readJsonFile(source.localPackageJson, `${source.packageName} 本地 package.json`);
   const version = json?.version;
 

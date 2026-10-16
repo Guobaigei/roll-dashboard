@@ -83,4 +83,21 @@ export const agents: Agent[] = [
     runtimeDetails:
       "按需调用微进程 (stdio / Python 3.11+) | 依赖 Sponge MCP Server Token | 审计日志落盘",
   },
+  {
+    id: "cheese-agent",
+    roleName: "芝士 Agent",
+    overview:
+      "连接 HM 岗位服务，通过自然语言创建、编辑和上下架岗位，支持单岗与批量操作。自动识别并智能补齐岗位缺失的必填字段，生成草稿预览并展示校验结果，用户确认后再执行写入。",
+    plainSummary: "通过自然语言创建、编辑和上下架岗位，先查看预览，再确认执行。",
+    examplePrompt: "roll run cheese-agent get_capabilities --json",
+    businessOutcome:
+      "通过智能补齐必填字段与字段校验，减少岗位录入、批量维护中的信息遗漏和重复操作。",
+    accent: "green",
+    category: "岗位创建与维护",
+    tags: ["岗位创建与编辑", "批量岗位维护", "先预览后执行", "上下架管理"],
+    installCommand: "roll agent install @roll-agent/cheese-agent",
+    runCommand: "roll run cheese-agent [tool_name]",
+    runtimeDetails:
+      "按需运行 (stdio / Node.js 22.6+) | 依赖 HM 服务与模型 API Key | 本地会话持久化",
+  },
 ];
