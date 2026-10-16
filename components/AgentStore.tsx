@@ -17,6 +17,7 @@ const AGENT_VERSION_BY_ID = {
   "smart-reply-agent": versions.smartReply,
   "reply-policy-tuner-agent": versions.replyPolicyTuner,
   "octopus-agent": versions.octopus,
+  "cheese-agent": versions.cheese,
 } as const;
 
 function getAgentVersionLabel(agentId: string) {
